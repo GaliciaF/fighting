@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const rooms = [
-  { id: 1, number: "101", type: "Single", price: 800, status: "occupied" },
-  { id: 2, number: "102", type: "Double", price: 1200, status: "available" },
-  { id: 3, number: "201", type: "Single", price: 850, status: "maintenance" },
+  { id: 1, number: "101", type: "Bedspacer", price: 800, status: "occupied" },
+  { id: 2, number: "102", type: "Private", price: 1200, status: "available" },
+  { id: 3, number: "201", type: "Bedspacer", price: 850, status: "occupied" },
 ];
 
 export default function RoomManagement() {
@@ -35,13 +35,11 @@ export default function RoomManagement() {
           <option>All Status</option>
           <option>Available</option>
           <option>Occupied</option>
-          <option>Maintenance</option>
         </select>
         <select className="border p-3 rounded-2xl focus:ring-2 focus:ring-avocado focus:outline-none">
           <option>All Types</option>
-          <option>Single</option>
-          <option>Double</option>
-          <option>Suite</option>
+          <option>Bedspacer</option>
+          <option>Private</option>
         </select>
       </div>
 

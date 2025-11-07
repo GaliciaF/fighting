@@ -44,10 +44,9 @@ export default function AddRoom() {
             required
           >
             <option value="" disabled>Select Room Type</option>
-            <option value="Single">Single</option>
-            <option value="Double">Double</option>
-            <option value="Dormitory">Dormitory</option>
-            <option value="Suite">Suite</option>
+            <option value="Bedspacer">Bedspacer</option>
+            <option value="Private">Private</option>
+        
           </select>
 
           <input
@@ -68,7 +67,6 @@ export default function AddRoom() {
           >
             <option value="Available">Available</option>
             <option value="Occupied">Occupied</option>
-            <option value="Maintenance">Maintenance</option>
           </select>
 
           <div className="flex justify-between mt-4">
