@@ -21,6 +21,17 @@ module.exports = {
         avocado30: "#558C034D",
         avocado40: "#558C0340",
         background: "#F4F3F8",
+           metallicPink: "#F2ACC6",
+      antiqueFuchsia: "#A65389",
+      blueYonder: "#536FA6",
+      oxfordBlue: "#0A2740",
+      bdazzledBlue: "#2B5F8C",
+        "emerald-deep": "#0F3D3E",
+        "emerald-blue": "#2F8F9D",
+        "emerald-gold": "#FFBF86",
+      },
+       backgroundImage: {
+        "emerald-gradient": "linear-gradient(180deg, #0F3D3E 0%, #2F8F9D 50%, #FFBF86 100%)",
       },
       boxShadow: {
         card: "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)",

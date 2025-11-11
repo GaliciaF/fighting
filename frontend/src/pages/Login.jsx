@@ -1,37 +1,37 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api";
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleLogin = (e) => {
     e.preventDefault();
-  
 
-    // Example login logic — replace with real backend validation later
+    // Demo login logic
     if (email === "admin@gmail.com" && password === "admin123") {
       localStorage.setItem("role", "admin");
-      navigate("/dashboard"); // Redirect to admin panel
+      navigate("/dashboard"); // Admin panel
       return;
     } else if (email === "user@gmail.com" && password === "user123") {
       localStorage.setItem("role", "user");
-      navigate("/user/dashboard"); // Redirect to user panel
+      navigate("/user/dashboard"); // User panel
+      return;
+    } else if (email === "staff@gmail.com" && password === "staff123") {
+      localStorage.setItem("role", "staff");
+      navigate("/staff/dashboard"); // Staff panel
       return;
     } else {
-      alert("Invalid credentials. Try admin@gmail.com/admin123 or user@gmail.com/user123");
+      alert(
+        "Invalid credentials. Try demo accounts:\nAdmin: admin@gmail.com / admin123\nUser: user@gmail.com / user123\nStaff: staff@gmail.com / staff123"
+      );
       return;
     }
-    try {
-      const res = await api.post('/login', { email, password });
-      localStorage.setItem('token', res.data.token);
-      alert('Login successful!');
-    } catch (err) {
-      console.error(err);
-      alert('Login failed');
-    }
   };
+
+  // Role-specific button color example (can expand later)
+  const roleColor = "bg-lincoln"; // Keep consistent for demo login button
 
   return (
     <div className="flex items-center justify-center h-screen bg-gradient-to-br from-lincoln/5 via-avocado/5 to-smoky/3">
@@ -65,14 +65,12 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full bg-lincoln text-white py-3 rounded-xl hover:bg-lincoln30 transition-colors"
+            className={`${roleColor} w-full text-white py-3 rounded-xl hover:bg-lincoln30 transition-colors`}
           >
-          
             Login
           </button>
         </form>
 
-        {/* Register link */}
         <div className="text-center mt-6">
           <p className="text-sm text-gray-600">
             Don't have an account?{" "}
@@ -91,6 +89,8 @@ export default function Login() {
           <span className="font-medium text-lincoln">Admin:</span> admin@gmail.com / admin123
           <br />
           <span className="font-medium text-lincoln">User:</span> user@gmail.com / user123
+          <br />
+          <span className="font-medium text-lincoln">Staff:</span> staff@gmail.com / staff123
         </p>
       </div>
     </div>

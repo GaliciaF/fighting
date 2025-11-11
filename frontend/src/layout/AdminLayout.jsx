@@ -8,7 +8,6 @@ const menuItems = [
   { name: "Tenants", icon: <Users size={18} />, path: "/tenants" },
       {name: "Payments", icon: <CreditCard size={18} />, path: "/payments" },
 
-  { name: "Cleaning", icon: <Calendar size={18} />, path: "/cleaningschedule" }
 ];
 
 export default function AdminLayout({ children, hideSidebar }) {

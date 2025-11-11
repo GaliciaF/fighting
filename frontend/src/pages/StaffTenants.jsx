@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, NavLink } from "react-router-dom";
-import { Home, BedDouble, Users, CreditCard, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const sampleTenants = [
   { id: 1, name: "Anna Reyes", room: "101", contact: "09123456789", status: "Active" },
@@ -8,16 +7,15 @@ const sampleTenants = [
   { id: 3, name: "Maria Santos", room: "201", contact: "09778889999", status: "Inactive" },
 ];
 
-const menuItems = [
-  { name: "Dashboard", icon: <Home size={18} />, path: "/dashboard" },
-  { name: "Rooms", icon: <BedDouble size={18} />, path: "/roommanagement" },
-  { name: "Tenants", icon: <Users size={18} />, path: "/tenants" },
-  { name: "Payments", icon: <CreditCard size={18} />, path: "/payments" },
-];
-
-export default function Tenants() {
-  const navigate = useNavigate();
+export default function StaffTenants() {
   const [search, setSearch] = useState("");
+  const navigate = useNavigate();
+
+  const menuItems = [
+    { name: "Dashboard", path: "/staff/dashboard" },
+    { name: "Room Management", path: "/staff/rooms" },
+    { name: "Tenants", path: "/staff/tenants" }
+  ];
 
   const handleLogout = () => {
     localStorage.removeItem("role");
@@ -25,60 +23,54 @@ export default function Tenants() {
   };
 
   return (
-    <div className="flex min-h-screen bg-background text-smoky">
+    <div className="flex min-h-screen bg-emerald-gradient text-white">
       {/* Sidebar */}
-      <aside className="w-64 bg-lincoln p-6 flex flex-col justify-between">
+      <aside className="w-64 bg-emerald-deep p-6 flex flex-col justify-between">
         <div>
-          <h2 className="text-xl font-bold text-background mb-8">BoardingHouse</h2>
+          <h2 className="text-2xl font-bold text-emerald-gold mb-8">Emerald Staff</h2>
           <nav className="space-y-3">
             {menuItems.map((item) => (
-              <NavLink
+              <div
                 key={item.name}
-                to={item.path}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 p-3 rounded-lg font-semibold hover:bg-avocado transition ${
-                    isActive ? "bg-avocado text-background" : "text-background"
-                  }`
-                }
+                onClick={() => navigate(item.path)}
+                className="cursor-pointer flex items-center gap-3 p-3 rounded-lg font-semibold hover:bg-emerald-blue transition-colors"
               >
-                {item.icon} {item.name}
-              </NavLink>
+                {item.name}
+              </div>
             ))}
           </nav>
         </div>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 p-3 rounded-lg bg-lime20 hover:bg-avocado text-smoky font-semibold transition"
+          className="bg-emerald-gold text-emerald-deep font-semibold p-3 rounded-lg hover:bg-emerald-blue transition"
         >
-          <LogOut size={18} /> Logout
+          Logout
         </button>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 p-6 space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-smoky">Tenants</h1>
+          <h1 className="text-3xl font-bold text-emerald-gold">Tenants</h1>
           <button
-            onClick={() => navigate("/addtenant")}
-            className="bg-lincoln20 border border-lincoln/20 px-5 py-2 rounded-2xl shadow-card hover:bg-lincoln30 transition-colors duration-200"
+            onClick={() => navigate("/staff/add-tenant")}
+            className="bg-emerald-deep border border-emerald-blue px-5 py-2 rounded-2xl shadow-card hover:bg-emerald-blue transition-colors duration-200"
           >
             + Add Tenant
           </button>
         </div>
 
-        {/* Search input */}
         <input
           type="text"
           placeholder="Search tenants..."
-          className="border p-3 rounded-2xl w-full md:w-1/3 focus:ring-2 focus:ring-avocado focus:outline-none"
+          className="border p-3 rounded-2xl w-full md:w-1/3 focus:ring-2 focus:ring-emerald-gold focus:outline-none"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
 
-        {/* Tenants table */}
-        <div className="bg-lincoln20 border border-lincoln/20 rounded-2xl shadow-card overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-lincoln30 text-background">
+        <div className="bg-emerald-deep border border-emerald-blue rounded-2xl shadow-card overflow-x-auto">
+          <table className="w-full text-sm text-left text-white">
+            <thead className="bg-emerald-blue text-emerald-gold">
               <tr>
                 <th className="py-3 px-4">Name</th>
                 <th className="py-3 px-4">Room</th>
@@ -91,7 +83,10 @@ export default function Tenants() {
               {sampleTenants
                 .filter((t) => t.name.toLowerCase().includes(search.toLowerCase()))
                 .map((tenant) => (
-                  <tr key={tenant.id} className="border-t hover:bg-lincoln30 transition-colors duration-200">
+                  <tr
+                    key={tenant.id}
+                    className="border-t border-emerald-blue hover:bg-emerald-blue/20 transition-colors duration-200"
+                  >
                     <td className="py-2 px-4">{tenant.name}</td>
                     <td className="py-2 px-4">{tenant.room}</td>
                     <td className="py-2 px-4">{tenant.contact}</td>
@@ -99,9 +94,9 @@ export default function Tenants() {
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-medium ${
                           tenant.status === "Active"
-                            ? "bg-lincoln50 text-background"
+                            ? "bg-emerald-gold text-emerald-deep"
                             : tenant.status === "Pending"
-                            ? "bg-avocado40 text-background"
+                            ? "bg-emerald-blue text-emerald-gold"
                             : "bg-smoky20 text-smoky"
                         }`}
                       >
@@ -109,7 +104,9 @@ export default function Tenants() {
                       </span>
                     </td>
                     <td className="py-2 px-4 text-center">
-                      <button className="text-lincoln hover:text-avocado font-medium">Edit</button>
+                      <button className="text-emerald-gold hover:text-emerald-blue font-medium">
+                        Edit
+                      </button>
                     </td>
                   </tr>
                 ))}
