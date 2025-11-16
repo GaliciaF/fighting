@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, NavLink } from "react-router-dom";
+import { CreditCard, Megaphone, User, LogOut } from "lucide-react";
 
 // Sample announcements data
 const initialAnnouncements = [
@@ -40,21 +41,42 @@ export default function UserAnnouncements() {
     setCommentText({ ...commentText, [id]: "" });
   };
 
+  const menuItems = [
+    { id: "profile", label: "My Profile", icon: <User size={18} />, path: "/user/profile" },
+    { id: "payments", label: "Payment History", icon: <CreditCard size={18} />, path: "/user/payments" },
+    { id: "announcements", label: "Announcements", icon: <Megaphone size={18} />, path: "/user/announcements" },
+  ];
+
   return (
     <div className="flex min-h-screen bg-blueYonder/10">
       {/* Sidebar */}
       <aside className="w-64 bg-oxfordBlue text-white p-6 flex flex-col justify-between shadow-lg rounded-r-2xl">
-        <h1
-          className="text-2xl font-bold text-metallicPink cursor-pointer"
-          onClick={() => navigate("/user/dashboard")}
-        >
-          Tenant Dashboard
-        </h1>
+        <div className="space-y-8">
+          <h1 className="text-2xl font-bold text-metallicPink">Tenant Dashboard</h1>
+          <nav className="space-y-2">
+            {menuItems.map((item) => (
+              <NavLink
+                key={item.id}
+                to={item.path}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 w-full px-4 py-3 rounded-2xl font-medium transition-all duration-200 ${
+                    isActive
+                      ? "bg-antiqueFuchsia text-white shadow-md"
+                      : "text-blue-100 hover:bg-bdazzledBlue/40 hover:text-white"
+                  }`
+                }
+              >
+                {item.icon} {item.label}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
+
         <button
           onClick={() => navigate("/login")}
           className="mt-auto flex items-center gap-2 px-4 py-3 bg-antiqueFuchsia text-white rounded-2xl hover:bg-antiqueFuchsia/80 shadow-md transition-all"
         >
-          Logout
+          <LogOut size={16} /> Logout
         </button>
       </aside>
 

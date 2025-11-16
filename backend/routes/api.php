@@ -23,6 +23,10 @@ Route::post('/login',    [AuthController::class, 'login']);
 
 Route::apiResource('/rooms', RoomController::class);
 Route::apiResource('/tenants', TenantController::class);
+Route::get('/tenant/email/{email}', [TenantController::class, 'getByEmail']);
+Route::get('/tenants/{tenant}', [TenantController::class, 'show']);
+Route::post('/tenants/{tenant}', [TenantController::class, 'update']);
+
 Route::apiResource('/payments', PaymentController::class);
 
 Route::get('/test', function () {

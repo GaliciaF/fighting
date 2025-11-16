@@ -6,7 +6,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [securityAnswer, setSecurityAnswer] = useState("");
-  const [showSecurityQuestion, setShowSecurityQuestion] = useState(false); // controls field visibility
+  const [showSecurityQuestion, setShowSecurityQuestion] = useState(false);
   const navigate = useNavigate();
 
   // Predefined admin/staff emails for demo
@@ -32,8 +32,11 @@ export default function Login() {
 
       const user = res.data.user;
 
+      // ✅ Store role, email, name, and userId
       localStorage.setItem("role", user.role);
       localStorage.setItem("userId", user.id);
+      localStorage.setItem("email", user.email);
+      localStorage.setItem("name", user.name);
 
       if (user.role === "admin") navigate("/dashboard");
       else if (user.role === "staff") navigate("/staff/dashboard");
@@ -125,15 +128,7 @@ export default function Login() {
             </p>
           </div>
 
-          <p className="text-center text-sm text-gray-600 mt-6">
-            Demo accounts:
-            <br />
-            <span className="font-medium text-lincoln">Admin:</span> admin@gmail.com / admin123 / green
-            <br />
-            <span className="font-medium text-lincoln">Staff:</span> staff@gmail.com / staff123 / blue
-            <br />
-            <span className="font-medium text-lincoln">User:</span> user@gmail.com / user123
-          </p>
+         
         </div>
       </div>
     </div>
