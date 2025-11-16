@@ -1,5 +1,5 @@
 import React from "react";
-import { CreditCard, User, Megaphone, LogOut } from "lucide-react";
+import { CreditCard, User, Megaphone, LogOut, Home } from "lucide-react";
 import { useNavigate, NavLink } from "react-router-dom";
 
 export default function UserPayments() {
@@ -13,6 +13,7 @@ export default function UserPayments() {
   };
 
   const menuItems = [
+    { id: "dashboard", label: "Dashboard", icon: <Home size={18} />, path: "/user/dashboard" },
     { id: "profile", label: "My Profile", icon: <User size={18} />, path: "/user/profile" },
     { id: "payments", label: "Payment History", icon: <CreditCard size={18} />, path: "/user/payments" },
     { id: "announcements", label: "Announcements", icon: <Megaphone size={18} />, path: "/user/announcements" },

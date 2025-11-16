@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
-import { CreditCard, Megaphone, User, LogOut } from "lucide-react";
+import { CreditCard, Megaphone, User, LogOut, Home } from "lucide-react";
 
 // Sample announcements data
 const initialAnnouncements = [
@@ -42,6 +42,7 @@ export default function UserAnnouncements() {
   };
 
   const menuItems = [
+    { id: "dashboard", label: "Dashboard", icon: <Home size={18} />, path: "/user/dashboard" },
     { id: "profile", label: "My Profile", icon: <User size={18} />, path: "/user/profile" },
     { id: "payments", label: "Payment History", icon: <CreditCard size={18} />, path: "/user/payments" },
     { id: "announcements", label: "Announcements", icon: <Megaphone size={18} />, path: "/user/announcements" },
