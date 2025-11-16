@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -7,25 +8,46 @@ use Illuminate\Http\Request;
 
 class RoomController extends Controller
 {
-    public function index() {
+    // List all rooms
+    public function index()
+    {
         return Room::all();
     }
 
-    public function store(Request $request) {
-        $room = Room::create($request->all());
-        return response()->json($room, 201);
+    // Create a new room with validation
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'capacity' => 'required|integer|min:1',
+            'price' => 'required|numeric|min:0',
+        ]);
+
+        return Room::create($validated);
     }
 
-    public function show(Room $room) {
+    // Show a single room
+    public function show(Room $room)
+    {
         return $room;
     }
 
-    public function update(Request $request, Room $room) {
-        $room->update($request->all());
-        return response()->json($room);
+    // Update an existing room with validation
+    public function update(Request $request, Room $room)
+    {
+        $validated = $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'capacity' => 'sometimes|required|integer|min:1',
+            'price' => 'sometimes|required|numeric|min:0',
+        ]);
+
+        $room->update($validated);
+        return $room;
     }
 
-    public function destroy(Room $room) {
+    // Delete a room
+    public function destroy(Room $room)
+    {
         $room->delete();
         return response()->json(null, 204);
     }

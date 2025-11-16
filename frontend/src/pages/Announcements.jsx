@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Pencil, Plus, Trash } from "lucide-react";
+import React, { useState } from "react"; 
+import { useNavigate, NavLink } from "react-router-dom";
+import { Pencil, Plus, Trash, Home, BedDouble, Users, CreditCard, LogOut, Megaphone } from "lucide-react";
 
 // Sample initial data
 const initialAnnouncements = [
@@ -21,6 +21,13 @@ const initialAnnouncements = [
     date: "Nov 10, 2025",
     comments: [],
   },
+];
+
+const menuItems = [
+  { name: "Dashboard", icon: <Home size={18} />, path: "/dashboard" },
+  { name: "Rooms", icon: <BedDouble size={18} />, path: "/roommanagement" },
+  { name: "Tenants", icon: <Users size={18} />, path: "/tenants" },
+  { name: "Payments", icon: <CreditCard size={18} />, path: "/payments" },
 ];
 
 export default function Announcements() {
@@ -90,6 +97,11 @@ export default function Announcements() {
     );
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("role");
+    navigate("/login");
+  };
+
   return (
     <div className="flex min-h-screen bg-background text-smoky">
       {/* Sidebar */}
@@ -101,9 +113,31 @@ export default function Announcements() {
           >
             BoardingHouse
           </h2>
+          <nav className="space-y-3">
+            {menuItems.map((item) => (
+              <NavLink
+                key={item.name}
+                to={item.path}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 p-3 rounded-lg font-semibold hover:bg-avocado transition ${
+                    isActive ? "bg-avocado text-background" : "text-background"
+                  }`
+                }
+              >
+                {item.icon} {item.name}
+              </NavLink>
+            ))}
+          </nav>
         </div>
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 p-3 rounded-lg bg-lime20 hover:bg-avocado text-smoky font-semibold transition"
+        >
+          <LogOut size={18} /> Logout
+        </button>
       </aside>
 
+      {/* Main content */}
       <main className="flex-1 p-6 space-y-8">
         <h1 className="text-3xl font-bold text-smoky mb-4">Announcements</h1>
 

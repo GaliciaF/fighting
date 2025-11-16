@@ -44,6 +44,7 @@ class AuthController extends Controller
         if (in_array($user->role, ['admin', 'staff'])) {
             if (! $request->security_answer || strtolower($user->security_answer) !== strtolower($request->security_answer)) {
                 return response()->json(['error' => 'Security question failed'], 401);
+                
             }
         }
 

@@ -66,25 +66,7 @@ export default function AdminDashboard() {
       <main className="flex-1 p-6 space-y-8">
         <h1 className="text-3xl font-bold text-smoky">Dashboard</h1>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {[
-            { title: "Total Rooms", value: "48", sub: "45 occupied, 3 available" },
-            { title: "Active Tenants", value: "67", sub: "+3 from last month" },
-            { title: "Monthly Revenue", value: "14,200", sub: "+₱400 from last month" },
-            { title: "Pending Issues", value: "8", sub: "3 maintenance, 5 payments" },
-          ].map((card) => (
-            <div
-              key={card.title}
-              className="bg-lincoln20 border border-lincoln/20 rounded-2xl shadow-card p-6 hover:bg-lincoln30 transition-colors duration-200"
-            >
-              <h3 className="text-smoky/70 text-sm">{card.title}</h3>
-              <p className="text-2xl font-semibold text-smoky mt-2">{card.value}</p>
-              <p className="text-smoky/80 text-sm mt-1">{card.sub}</p>
-            </div>
-          ))}
-        </div>
-          {/* Announcements Card */}
+        {/* Announcements Card */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div
             onClick={() => navigate("/announcements")}
@@ -96,6 +78,27 @@ export default function AdminDashboard() {
             </div>
             <p className="text-smoky/80 mt-2">Click to view and manage announcements</p>
           </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[
+            { title: "Total Rooms", value: "20", sub: "17 occupied, 3 available", path: "/roommanagement" },
+            { title: "Active Tenants", value: "67", sub: "+3 from last month", path: "/tenants" },
+            { title: "Monthly Revenue", value: "51,400", sub: "+₱400 from last month", path: "/payments" },
+          ].map((card) => (
+            <div
+              key={card.title}
+              onClick={() => card.path && navigate(card.path)}
+              className={`bg-lincoln20 border border-lincoln/20 rounded-2xl shadow-card p-6 hover:bg-lincoln30 transition-colors duration-200 ${
+                card.path ? "cursor-pointer" : ""
+              }`}
+            >
+              <h3 className="text-smoky/70 text-sm">{card.title}</h3>
+              <p className="text-2xl font-semibold text-smoky mt-2">{card.value}</p>
+              <p className="text-smoky/80 text-sm mt-1">{card.sub}</p>
+            </div>
+          ))}
         </div>
 
         {/* Charts */}
@@ -131,8 +134,6 @@ export default function AdminDashboard() {
             </ResponsiveContainer>
           </div>
         </div>
-
-      
       </main>
     </div>
   );

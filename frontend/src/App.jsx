@@ -60,10 +60,12 @@ export default function App() {
       />
       <Route
         path="/roommanagement"
+        
         element={
           <ProtectedRoute allowedRole="admin">
             <RoomManagement />
           </ProtectedRoute>
+          
         }
       />
       <Route
