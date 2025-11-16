@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -8,13 +9,12 @@ export default function Register() {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "tenant", // default role for registration
   });
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (form.password !== form.confirmPassword) {
@@ -22,27 +22,26 @@ export default function Register() {
       return;
     }
 
-    // Retrieve mock users
-    const users = JSON.parse(localStorage.getItem("mockUsers")) || [];
+    try {
+      // 🔥 REAL API REQUEST TO LARAVEL
+      await api.post("/register", {
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        role: "user", // default user role when registering
+      });
 
-    // Check if user already exists
-    if (users.some((u) => u.email === form.email)) {
-      alert("User already exists. Please log in instead.");
+      alert("Registration successful!");
       navigate("/login");
-      return;
+    } catch (error) {
+      console.error(error);
+
+      if (error.response?.data?.message) {
+        alert(error.response.data.message);
+      } else {
+        alert("Registration failed. Please try again.");
+      }
     }
-
-    // Add user
-    const newUser = {
-      name: form.name,
-      email: form.email,
-      password: form.password,
-      role: form.role,
-    };
-    localStorage.setItem("mockUsers", JSON.stringify([...users, newUser]));
-
-    alert("Registration successful!");
-    navigate("/login");
   };
 
   return (
@@ -62,6 +61,7 @@ export default function Register() {
             className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-avocado"
             required
           />
+
           <input
             type="email"
             name="email"
@@ -71,6 +71,7 @@ export default function Register() {
             className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-avocado"
             required
           />
+
           <input
             type="password"
             name="password"
@@ -80,6 +81,7 @@ export default function Register() {
             className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-avocado"
             required
           />
+
           <input
             type="password"
             name="confirmPassword"
@@ -89,8 +91,6 @@ export default function Register() {
             className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-avocado"
             required
           />
-
-         
 
           <button
             type="submit"
@@ -102,10 +102,7 @@ export default function Register() {
 
         <p className="text-sm text-center text-gray-600 mt-4">
           Already have an account?{" "}
-          <a
-            href="/login"
-            className="text-lincoln font-semibold hover:underline"
-          >
+          <a href="/login" className="text-lincoln font-semibold hover:underline">
             Login
           </a>
         </p>

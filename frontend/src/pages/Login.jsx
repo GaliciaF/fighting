@@ -1,14 +1,43 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
 
+    try {
+      // 🔥 First try Laravel API login
+      const res = await api.post("/login", {
+        email,
+        password,
+      });
+
+      // Save user data
+      localStorage.setItem("role", res.data.user.role);
+      localStorage.setItem("userId", res.data.user.id);
+
+      // Redirect based on database role
+      if (res.data.user.role === "admin") {
+        navigate("/dashboard");
+      } else if (res.data.user.role === "user") {
+        navigate("/user/dashboard");
+      } else if (res.data.user.role === "staff") {
+        navigate("/staff/dashboard");
+      } else {
+        navigate("/dashboard");
+      }
+
+      return;
+    } catch (error) {
+      console.warn("API login failed. Trying demo login...");
+    }
+
+    // 🔥 DEMO ACCOUNT FALLBACK
     if (email === "admin@gmail.com" && password === "admin123") {
       localStorage.setItem("role", "admin");
       navigate("/dashboard");
@@ -23,7 +52,7 @@ export default function Login() {
       return;
     } else {
       alert(
-        "Invalid credentials. Try demo accounts:\nAdmin: admin@gmail.com / admin123\nUser: user@gmail.com / user123\nStaff: staff@gmail.com / staff123"
+        "Invalid credentials.\nTry demo accounts:\nAdmin: admin@gmail.com / admin123\nUser: user@gmail.com / user123\nStaff: staff@gmail.com / staff123"
       );
     }
   };
@@ -38,7 +67,7 @@ export default function Login() {
         <p className="text-lg text-white/80 text-center">
           Welcome to JBRC Boarding House! Please login to access your dashboard.
         </p>
-        {/* Optional: add an image or illustration */}
+
         <img
           src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80"
           alt="Boarding House"
