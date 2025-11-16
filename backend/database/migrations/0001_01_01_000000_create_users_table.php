@@ -16,9 +16,10 @@ return new class extends Migration
     $table->string('name');
     $table->string('email')->unique();
     $table->string('password');
-    $table->enum('role', ['admin', 'tenant'])->default('tenant');
+    $table->enum('role', ['admin','user','staff'])->default('user');
     $table->timestamps();
 });
+
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();

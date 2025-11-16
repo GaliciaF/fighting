@@ -5,59 +5,47 @@ import api from "../api/axios";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [securityAnswer, setSecurityAnswer] = useState("");
+  const [showSecurityQuestion, setShowSecurityQuestion] = useState(false); // controls field visibility
   const navigate = useNavigate();
+
+  // Predefined admin/staff emails for demo
+  const adminStaffEmails = ["admin@gmail.com", "staff@gmail.com"];
+
+  const handleEmailChange = (e) => {
+    const value = e.target.value.toLowerCase();
+    setEmail(value);
+
+    // Show security question only for admin/staff
+    setShowSecurityQuestion(adminStaffEmails.includes(value));
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
-      // 🔥 First try Laravel API login
       const res = await api.post("/login", {
         email,
         password,
+        security_answer: showSecurityQuestion ? securityAnswer : undefined,
       });
 
-      // Save user data
-      localStorage.setItem("role", res.data.user.role);
-      localStorage.setItem("userId", res.data.user.id);
+      const user = res.data.user;
 
-      // Redirect based on database role
-      if (res.data.user.role === "admin") {
-        navigate("/dashboard");
-      } else if (res.data.user.role === "user") {
-        navigate("/user/dashboard");
-      } else if (res.data.user.role === "staff") {
-        navigate("/staff/dashboard");
-      } else {
-        navigate("/dashboard");
-      }
+      localStorage.setItem("role", user.role);
+      localStorage.setItem("userId", user.id);
 
-      return;
-    } catch (error) {
-      console.warn("API login failed. Trying demo login...");
-    }
-
-    // 🔥 DEMO ACCOUNT FALLBACK
-    if (email === "admin@gmail.com" && password === "admin123") {
-      localStorage.setItem("role", "admin");
-      navigate("/dashboard");
-      return;
-    } else if (email === "user@gmail.com" && password === "user123") {
-      localStorage.setItem("role", "user");
-      navigate("/user/dashboard");
-      return;
-    } else if (email === "staff@gmail.com" && password === "staff123") {
-      localStorage.setItem("role", "staff");
-      navigate("/staff/dashboard");
-      return;
-    } else {
+      if (user.role === "admin") navigate("/dashboard");
+      else if (user.role === "staff") navigate("/staff/dashboard");
+      else navigate("/user/dashboard");
+    } catch (err) {
+      console.error(err);
       alert(
-        "Invalid credentials.\nTry demo accounts:\nAdmin: admin@gmail.com / admin123\nUser: user@gmail.com / user123\nStaff: staff@gmail.com / staff123"
+        err.response?.data?.error ||
+          "Login failed. Make sure your credentials are correct."
       );
     }
   };
-
-  const roleColor = "bg-lincoln";
 
   return (
     <div className="flex h-screen">
@@ -67,12 +55,6 @@ export default function Login() {
         <p className="text-lg text-white/80 text-center">
           Welcome to JBRC Boarding House! Please login to access your dashboard.
         </p>
-
-        <img
-          src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80"
-          alt="Boarding House"
-          className="mt-8 rounded-xl shadow-lg"
-        />
       </div>
 
       {/* Right side - login form */}
@@ -88,7 +70,7 @@ export default function Login() {
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={handleEmailChange}
                 className="w-full border border-gray-300 p-3 rounded-xl focus:ring-2 focus:ring-lincoln outline-none"
                 placeholder="Enter your email"
                 required
@@ -107,9 +89,25 @@ export default function Login() {
               />
             </div>
 
+            {showSecurityQuestion && (
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">
+                  Favorite Color (Admin/Staff Only)
+                </label>
+                <input
+                  type="text"
+                  value={securityAnswer}
+                  onChange={(e) => setSecurityAnswer(e.target.value)}
+                  className="w-full border border-gray-300 p-3 rounded-xl focus:ring-2 focus:ring-lincoln outline-none"
+                  placeholder="Enter your favorite color"
+                  required
+                />
+              </div>
+            )}
+
             <button
               type="submit"
-              className={`${roleColor} w-full text-white py-3 rounded-xl hover:bg-lincoln30 transition-colors`}
+              className="bg-lincoln w-full text-white py-3 rounded-xl hover:bg-lincoln30 transition-colors"
             >
               Login
             </button>
@@ -128,13 +126,13 @@ export default function Login() {
           </div>
 
           <p className="text-center text-sm text-gray-600 mt-6">
-            Try demo accounts:
+            Demo accounts:
             <br />
-            <span className="font-medium text-lincoln">Admin:</span> admin@gmail.com / admin123
+            <span className="font-medium text-lincoln">Admin:</span> admin@gmail.com / admin123 / green
+            <br />
+            <span className="font-medium text-lincoln">Staff:</span> staff@gmail.com / staff123 / blue
             <br />
             <span className="font-medium text-lincoln">User:</span> user@gmail.com / user123
-            <br />
-            <span className="font-medium text-lincoln">Staff:</span> staff@gmail.com / staff123
           </p>
         </div>
       </div>

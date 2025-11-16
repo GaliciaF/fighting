@@ -1,5 +1,3 @@
-import { useEffect, useState } from "react";
-import api from "./api/axios";
 
 
 import { Routes, Route, Navigate } from "react-router-dom";
@@ -31,15 +29,9 @@ const ProtectedRoute = ({ children, allowedRole }) => {
 };
 
 export default function App() {
-  const [message, setMessage] = useState("");
-
-  useEffect(() => {
-    api.get("/test")
-      .then(res => setMessage(res.data.message))
-      .catch(err => console.error(err));
-  }, []);
+  
   return (
-    <div><h1 style={{ color: "red" }}>{message}</h1>
+    
 
     
     <Routes>
@@ -186,6 +178,5 @@ export default function App() {
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
-    </div>
   );
 }

@@ -14,7 +14,6 @@ class Payment extends Model
         'amount',
         'payment_date',
         'status',      // paid, pending, overdue
-        'method',      // cash, card, etc.
     ];
 
     // Payment belongs to a tenant
