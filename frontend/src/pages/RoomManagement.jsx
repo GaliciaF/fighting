@@ -4,8 +4,8 @@ import { Home, BedDouble, Users, CreditCard, LogOut } from "lucide-react";
 
 const rooms = [
   { id: 1, number: "101", type: "Bedspacer", price: 800, status: "occupied", capacity: 6 },
-  { id: 2, number: "102", type: "Private", price: 1200, status: "available", capacity: 6 },
-  { id: 3, number: "201", type: "Bedspacer", price: 850, status: "occupied", capacity: 6 },
+  { id: 2, number: "102", type: "Private", price: 1000, status: "available", capacity: 6 },
+  { id: 3, number: "201", type: "Bedspacer", price: 800, status: "occupied", capacity: 6 },
 ];
 
 const menuItems = [

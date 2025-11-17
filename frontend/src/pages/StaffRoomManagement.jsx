@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 
 const rooms = [
   { id: 1, number: "101", type: "Bedspacer", price: 800, status: "occupied" },
-  { id: 2, number: "102", type: "Private", price: 1200, status: "available" },
-  { id: 3, number: "201", type: "Bedspacer", price: 850, status: "occupied" },
+  { id: 2, number: "102", type: "Private", price: 1000, status: "available" },
+  { id: 3, number: "201", type: "Bedspacer", price: 800, status: "occupied" },
 ];
 
 export default function StaffRoomManagement() {
