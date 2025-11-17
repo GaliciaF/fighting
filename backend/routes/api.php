@@ -22,6 +22,8 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login',    [AuthController::class, 'login']);
 
 Route::apiResource('/rooms', RoomController::class);
+Route::get('/rooms', [RoomController::class, 'index']);
+Route::post('/rooms', [RoomController::class, 'store']);
 Route::apiResource('/tenants', TenantController::class);
 Route::get('/tenant/email/{email}', [TenantController::class, 'getByEmail']);
 Route::get('/tenants/{tenant}', [TenantController::class, 'show']);
@@ -31,4 +33,5 @@ Route::apiResource('/payments', PaymentController::class);
 
 Route::get('/test', function () {
     return response()->json(['message' => 'Laravel 12 API working!']);
+    
 });

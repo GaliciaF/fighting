@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { User, LogOut, Upload, CreditCard, Megaphone ,Home} from "lucide-react";
+import { User, LogOut, Upload, CreditCard, Megaphone, Home } from "lucide-react";
 import { useNavigate, NavLink } from "react-router-dom";
 import axios from "axios";
 
 export default function UserProfile() {
   const navigate = useNavigate();
-
   const [tenant, setTenant] = useState({
     name: "",
     email: "",
@@ -150,42 +149,25 @@ export default function UserProfile() {
           </div>
 
           <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-bdazzledBlue mb-1">Full Name</label>
-              <input
-                name="name"
-                value={tenant.name}
-                onChange={handleChange}
-                className="w-full border border-blueYonder/40 rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-antiqueFuchsia"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-bdazzledBlue mb-1">Email</label>
-              <input
-                name="email"
-                value={tenant.email}
-                onChange={handleChange}
-                className="w-full border border-blueYonder/40 rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-antiqueFuchsia"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-bdazzledBlue mb-1">Room Number</label>
-              <input
-                name="room"
-                value={tenant.room}
-                onChange={handleChange}
-                className="w-full border border-blueYonder/40 rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-antiqueFuchsia"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-bdazzledBlue mb-1">Contact Number</label>
-              <input
-                name="contact"
-                value={tenant.contact}
-                onChange={handleChange}
-                className="w-full border border-blueYonder/40 rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-antiqueFuchsia"
-              />
-            </div>
+            {["name", "email", "room", "contact"].map((field) => (
+              <div key={field}>
+                <label className="block text-sm font-medium text-bdazzledBlue mb-1">
+                  {field === "name"
+                    ? "Full Name"
+                    : field === "room"
+                    ? "Room Number"
+                    : field === "contact"
+                    ? "Contact Number"
+                    : "Email"}
+                </label>
+                <input
+                  name={field}
+                  value={tenant[field]}
+                  onChange={handleChange}
+                  className="w-full border border-blueYonder/40 rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-antiqueFuchsia"
+                />
+              </div>
+            ))}
 
             <button
               onClick={handleSave}

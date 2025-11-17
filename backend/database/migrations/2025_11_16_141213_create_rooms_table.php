@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('rooms', function (Blueprint $table) {
     $table->id();
     $table->string('room_number');
-    $table->enum('room_type', ['bedspacer', 'private',]);
+    $table->enum('room_type', ['Bedspacer', 'Private',]);
     $table->decimal('rate', 10, 2);
     $table->enum('status', ['Available', 'Occupied'])->default('Available');
     $table->timestamps();
+    $table ->integer('capacity')->default(6);
 });
 
     }

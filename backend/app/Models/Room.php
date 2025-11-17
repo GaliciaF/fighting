@@ -14,6 +14,7 @@ class Room extends Model
         'room_type',
         'rate',
         'status',
+        'capacity',
     ];
 
     public function tenants()

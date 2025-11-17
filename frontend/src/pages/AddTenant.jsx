@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api/axios"; // Axios instance
 
 export default function AddTenant() {
   const navigate = useNavigate();
@@ -14,10 +15,19 @@ export default function AddTenant() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Tenant added successfully!");
-    navigate("/tenants");
+    try {
+      // Send POST request to backend
+      await api.post("/tenants", form);
+      alert("Tenant added successfully!");
+      // Reset form
+      setForm({ name: "", contact: "", roomNumber: "", startDate: "" });
+      navigate("/tenants"); // Redirect to tenant management page
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add tenant.");
+    }
   };
 
   return (

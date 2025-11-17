@@ -13,7 +13,7 @@ import AddRoom from "./pages/AddRoom";
 import Payments from "./pages/Payments";
 import AddPayment from "./pages/AddPayment";
 import Announcements from "./pages/Announcements";
-
+import EditRoom from "./pages/EditRoom";
 // User pages
 import UserDashboard from "./pages/UserDashboard";
 import UserProfile from "./pages/UserProfile";
@@ -60,6 +60,7 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+      
       <Route
         path="/tenants"
         element={
@@ -187,6 +188,8 @@ export default function App() {
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/login" replace />} />
+      <Route path="/editroom/:id" element={<EditRoom />} />
+
     </Routes>
   );
 }

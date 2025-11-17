@@ -1,18 +1,39 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import api from "../api/axios";
 
-export default function AddRoom() {
+export default function EditRoom() {
+  const { id } = useParams(); // get room id from URL
   const navigate = useNavigate();
-
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     roomNumber: "",
-    type: "Bedspacer",
-    price: "",
+    roomType: "",
+    rate: "",
     status: "Available",
+    capacity: "",
   });
 
-  const [loading, setLoading] = useState(false);
+  // Fetch room data on mount
+  useEffect(() => {
+    const fetchRoom = async () => {
+      try {
+        const res = await api.get(`/rooms/${id}`);
+        setForm({
+          roomNumber: res.data.room_number,
+          roomType: res.data.room_type,
+          rate: res.data.rate,
+          status: res.data.status,
+          capacity: res.data.capacity || "",
+        });
+      } catch (err) {
+        console.error("Error fetching room:", err);
+        alert("Failed to fetch room data.");
+        navigate("/roommanagement");
+      }
+    };
+    fetchRoom();
+  }, [id, navigate]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -21,34 +42,21 @@ export default function AddRoom() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
-      const res = await api.post("/rooms", form);
-      console.log("Room Saved:", res.data);
-
-      alert("Room added successfully!");
-
-      // reset
-      setForm({
-        roomNumber: "",
-        type: "Bedspacer",
-        price: "",
-        status: "Available",
-      });
-
+      await api.put(`/rooms/${id}`, form);
+      alert("Room updated successfully!");
       navigate("/roommanagement");
-    } catch (error) {
-      console.error("Error saving room:", error.response?.data || error);
-      alert("Failed to save room.");
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update room.");
     }
+    setLoading(false);
   };
 
   return (
     <div className="p-6 flex flex-col items-center">
       <div className="bg-lincoln20 p-6 rounded-2xl shadow-card w-full max-w-lg">
-        <h2 className="text-xl font-semibold text-lincoln mb-4">Add Room</h2>
+        <h2 className="text-xl font-semibold text-lincoln mb-4">Edit Room</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Room Number */}
@@ -64,24 +72,38 @@ export default function AddRoom() {
 
           {/* Room Type */}
           <select
-            name="type"
-            value={form.type}
-            onChange={handleChange}
-            className="w-full p-3 border border-lincoln30 rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
-          >
-            <option value="bedspacer">Bedspacer</option>
-            <option value="private">Private</option>
-          </select>
-
-          {/* Price */}
-          <input
-            type="number"
-            name="price"
-            placeholder="Monthly Rate (₱)"
-            value={form.price}
+            name="roomType"
+            value={form.roomType}
             onChange={handleChange}
             className="w-full p-3 border border-lincoln30 rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
             required
+          >
+            <option value="" disabled>
+              Select Room Type
+            </option>
+            <option value="Bedspacer">Bedspacer</option>
+            <option value="Private">Private</option>
+          </select>
+
+          {/* Rate */}
+          <input
+            type="number"
+            name="rate"
+            placeholder="Monthly Rate (₱)"
+            value={form.rate}
+            onChange={handleChange}
+            className="w-full p-3 border border-lincoln30 rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
+            required
+          />
+
+          {/* Capacity */}
+          <input
+            type="number"
+            name="capacity"
+            placeholder="Capacity"
+            value={form.capacity}
+            onChange={handleChange}
+            className="w-full p-3 border border-lincoln30 rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
           />
 
           {/* Status */}
@@ -95,6 +117,7 @@ export default function AddRoom() {
             <option value="Occupied">Occupied</option>
           </select>
 
+          {/* Buttons */}
           <div className="flex justify-between mt-4">
             <button
               type="button"
@@ -109,7 +132,7 @@ export default function AddRoom() {
               disabled={loading}
               className="px-4 py-2 bg-lincoln text-white rounded-xl hover:bg-avocado transition-all"
             >
-              {loading ? "Saving..." : "Save"}
+              {loading ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </form>
