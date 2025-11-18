@@ -8,6 +8,7 @@ import Register from "./pages/Register";
 import AdminDashboard from "./pages/AdminDashboard";
 import RoomManagement from "./pages/RoomManagement";
 import Tenants from "./pages/Tenants";
+import EditTenant from "./pages/EditTenant";
 import AddTenant from "./pages/AddTenant";
 import AddRoom from "./pages/AddRoom";
 import Payments from "./pages/Payments";
@@ -74,6 +75,7 @@ export default function App() {
           <ProtectedRoute allowedRoles={["admin"]}>
             <Tenants />
           </ProtectedRoute>
+          
         }
       />
       <Route
@@ -84,6 +86,15 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+  path="/edittenant/:id"
+  element={
+    <ProtectedRoute allowedRoles={["admin"]}>
+      <EditTenant />
+    </ProtectedRoute>
+  }
+/>
+
       <Route
         path="/addroom"
         element={

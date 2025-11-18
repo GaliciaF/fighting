@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api/axios"; // Axios instance
+import api from "../api/axios";
 
 export default function AddTenant() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     name: "",
-    contact: "",
-    roomNumber: "",
-    startDate: "",
+    email: "",
+    phone: "",
+    room_id: "", // can just be a text input now
   });
 
   const handleChange = (e) => {
@@ -18,22 +18,22 @@ export default function AddTenant() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Send POST request to backend
-      await api.post("/tenants", form);
+      const response = await api.post("/tenants", form);
+      console.log("Tenant added:", response.data);
       alert("Tenant added successfully!");
-      // Reset form
-      setForm({ name: "", contact: "", roomNumber: "", startDate: "" });
-      navigate("/tenants"); // Redirect to tenant management page
+      setForm({ name: "", email: "", phone: "", room_id: "" });
+      navigate("/tenants");
     } catch (err) {
-      console.error(err);
-      alert("Failed to add tenant.");
+      console.error("Error adding tenant:", err.response || err);
+      const message = err.response?.data?.message || err.response?.data || err.message;
+      alert(`Failed to add tenant: ${message}`);
     }
   };
 
   return (
     <div className="p-6 flex flex-col items-center">
-      <div className="bg-lincoln20 p-6 rounded-2xl shadow-card w-full max-w-lg">
-        <h2 className="text-xl font-semibold text-lincoln mb-4">Add Tenant</h2>
+      <div className="bg-lincoln20 p-6 rounded-2xl shadow-card w-full max-w-lg text-black">
+        <h2 className="text-xl font-semibold mb-4">Add Tenant</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
@@ -42,33 +42,34 @@ export default function AddTenant() {
             placeholder="Tenant Name"
             value={form.name}
             onChange={handleChange}
-            className="w-full p-3 border border-lincoln30 rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
+            className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado text-black placeholder-gray-500 bg-white"
             required
           />
           <input
-            type="text"
-            name="contact"
-            placeholder="Contact Number"
-            value={form.contact}
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={form.email}
             onChange={handleChange}
-            className="w-full p-3 border border-lincoln30 rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
+            className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado text-black placeholder-gray-500 bg-white"
             required
           />
           <input
             type="text"
-            name="roomNumber"
+            name="phone"
+            placeholder="Phone Number"
+            value={form.phone}
+            onChange={handleChange}
+            className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado text-black placeholder-gray-500 bg-white"
+            required
+          />
+          <input
+            type="text"
+            name="room_id"
             placeholder="Room Number"
-            value={form.roomNumber}
+            value={form.room_id}
             onChange={handleChange}
-            className="w-full p-3 border border-lincoln30 rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
-            required
-          />
-          <input
-            type="date"
-            name="startDate"
-            value={form.startDate}
-            onChange={handleChange}
-            className="w-full p-3 border border-lincoln30 rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
+            className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado text-black placeholder-gray-500 bg-white"
             required
           />
 
@@ -76,7 +77,7 @@ export default function AddTenant() {
             <button
               type="button"
               onClick={() => navigate("/tenants")}
-              className="px-4 py-2 bg-smoky20 text-lincoln rounded-xl hover:bg-lincoln30 transition-all"
+              className="px-4 py-2 bg-smoky20 text-black rounded-xl hover:bg-gray-200 transition-all"
             >
               Cancel
             </button>

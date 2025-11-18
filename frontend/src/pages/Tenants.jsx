@@ -1,12 +1,7 @@
-import React, { useState } from "react";
-import { useNavigate, NavLink } from "react-router-dom";
-import { Home, BedDouble, Users, CreditCard, LogOut } from "lucide-react";
-
-const sampleTenants = [
-  { id: 1, name: "Anna Reyes", room: "101", contact: "09123456789", status: "Active" },
-  { id: 2, name: "John Cruz", room: "102", contact: "09987654321", status: "Pending" },
-  { id: 3, name: "Maria Santos", room: "201", contact: "09778889999", status: "Inactive" },
-];
+import React, { useEffect, useState } from "react";
+import { useNavigate, NavLink, useLocation } from "react-router-dom";
+import { Home, BedDouble, Users, CreditCard, LogOut, Trash2, Edit2 } from "lucide-react";
+import axios from "axios";
 
 const menuItems = [
   { name: "Dashboard", icon: <Home size={18} />, path: "/dashboard" },
@@ -17,12 +12,55 @@ const menuItems = [
 
 export default function Tenants() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [tenants, setTenants] = useState([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const API_URL = "http://localhost:8000/api";
+
+  const fetchTenants = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API_URL}/tenants`);
+      setTenants(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching tenants:", error);
+      setLoading(false);
+    }
+  };
+
+  // Refetch tenants when component mounts or route changes
+  useEffect(() => {
+    fetchTenants();
+  }, [location]);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this tenant?")) return;
+    try {
+      await axios.delete(`${API_URL}/tenants/${id}`);
+      setTenants(tenants.filter((t) => t.id !== id));
+    } catch (error) {
+      console.error("Error deleting tenant:", error);
+    }
+  };
+
+  const handleEdit = (id) => {
+    navigate(`/edittenant/${id}`);
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("role");
     navigate("/login");
   };
+
+  const filteredTenants = tenants.filter(
+    (t) =>
+      t.name.toLowerCase().includes(search.toLowerCase()) ||
+      t.email.toLowerCase().includes(search.toLowerCase()) ||
+      t.phone.includes(search)
+  );
 
   return (
     <div className="flex min-h-screen bg-background text-smoky">
@@ -66,7 +104,6 @@ export default function Tenants() {
           </button>
         </div>
 
-        {/* Search input */}
         <input
           type="text"
           placeholder="Search tenants..."
@@ -75,46 +112,48 @@ export default function Tenants() {
           onChange={(e) => setSearch(e.target.value)}
         />
 
-        {/* Tenants table */}
         <div className="bg-lincoln20 border border-lincoln/20 rounded-2xl shadow-card overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-lincoln30 text-background">
-              <tr>
-                <th className="py-3 px-4">Name</th>
-                <th className="py-3 px-4">Room</th>
-                <th className="py-3 px-4">Contact</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sampleTenants
-                .filter((t) => t.name.toLowerCase().includes(search.toLowerCase()))
-                .map((tenant) => (
-                  <tr key={tenant.id} className="border-t hover:bg-lincoln30 transition-colors duration-200">
-                    <td className="py-2 px-4">{tenant.name}</td>
-                    <td className="py-2 px-4">{tenant.room}</td>
-                    <td className="py-2 px-4">{tenant.contact}</td>
-                    <td className="py-2 px-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          tenant.status === "Active"
-                            ? "bg-lincoln50 text-background"
-                            : tenant.status === "Pending"
-                            ? "bg-avocado40 text-background"
-                            : "bg-smoky20 text-smoky"
-                        }`}
-                      >
-                        {tenant.status}
-                      </span>
-                    </td>
-                    <td className="py-2 px-4 text-center">
-                      <button className="text-lincoln hover:text-avocado font-medium">Edit</button>
+          {loading ? (
+            <p className="p-4 text-center">Loading tenants...</p>
+          ) : (
+            <table className="w-full text-sm text-left">
+              <thead className="bg-lincoln30 text-background">
+                <tr>
+                  <th className="py-3 px-4">Name</th>
+                  <th className="py-3 px-4">Email</th>
+                  <th className="py-3 px-4">Phone</th>
+                  <th className="py-3 px-4">Room</th>
+                  <th className="py-3 px-4 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredTenants.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="text-center py-4">
+                      No tenants found.
                     </td>
                   </tr>
-                ))}
-            </tbody>
-          </table>
+                ) : (
+                  filteredTenants.map((tenant) => (
+                    <tr key={tenant.id} className="border-t hover:bg-lincoln30 transition-colors duration-200">
+                      <td className="py-2 px-4">{tenant.name}</td>
+                      <td className="py-2 px-4">{tenant.email}</td>
+                      <td className="py-2 px-4">{tenant.phone}</td>
+                      <td className="py-2 px-4">{tenant.room ? tenant.room.name : tenant.room_id}</td>
+                      <td className="py-2 px-4 text-center flex justify-center gap-2">
+                        <button onClick={() => handleEdit(tenant.id)} className="text-lincoln hover:text-avocado font-medium">
+                          <Edit2 size={16} />
+                        </button>
+                        <button onClick={() => handleDelete(tenant.id)} className="text-red-500 hover:text-red-700 font-medium">
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
       </main>
     </div>

@@ -10,12 +10,10 @@ class Tenant extends Model
     use HasFactory;
 
     protected $fillable = [
-        'first_name',
-        'last_name',
+        'name',
         'email',
         'phone',
         'room_id', // foreign key
-        'status',  // active, inactive, etc.
     ];
 
     // Tenant belongs to a room

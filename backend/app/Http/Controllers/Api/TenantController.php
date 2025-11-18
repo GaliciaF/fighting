@@ -14,10 +14,17 @@ class TenantController extends Controller
         return Tenant::with('room', 'payments')->get();
     }
 
-    public function store(Request $request)
-    {
-        $tenant = Tenant::create($request->all());
-        return response()->json($tenant, 201);
+public function store(Request $request)
+{
+    $tenant = Tenant::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'phone' => $request->phone,
+        'room_id' => $request->room_id, // make sure the frontend uses room_id
+    ]);
+
+    return response()->json($tenant, 201);
+
     }
 
     public function show(Tenant $tenant)
@@ -31,8 +38,8 @@ class TenantController extends Controller
         $tenant->update([
             'name' => $request->name,
             'email' => $request->email,
-            'room' => $request->room,
-            'contact' => $request->contact,
+            'phone' => $request->phone,
+            'room_id' => $request->roomNumber,
         ]);
 
         // Handle profile picture if uploaded
