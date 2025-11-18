@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
-use App\Models\Room; // import Room model
+use App\Models\Room;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,6 +17,20 @@ class TenantController extends Controller
 
     public function store(Request $request)
     {
+        // Fetch the room first
+        $room = Room::with('tenants')->find($request->room_id);
+
+        if (!$room) {
+            return response()->json(['message' => 'Room not found'], 404);
+        }
+
+        $tenantCount = $room->tenants->count();
+
+        // Prevent adding tenant if room is full
+        if ($tenantCount >= $room->capacity) {
+            return response()->json(['message' => 'Cannot add tenant. Room is already full.'], 400);
+        }
+
         // Create tenant
         $tenant = Tenant::create([
             'name' => $request->name,
@@ -25,22 +39,8 @@ class TenantController extends Controller
             'room_id' => $request->room_id,
         ]);
 
-        // Update room capacity/status
-        $room = Room::with('tenants')->find($request->room_id);
-
-        if ($room) {
-            $tenantCount = $room->tenants->count(); // current number of tenants
-
-            if ($tenantCount >= $room->capacity) {
-                $room->status = 'Full';
-            } elseif ($tenantCount > 0) {
-                $room->status = 'Occupied';
-            } else {
-                $room->status = 'Available';
-            }
-
-            $room->save();
-        }
+        // Update room status after adding tenant
+        $this->updateRoomStatus($room->id);
 
         return response()->json($tenant, 201);
     }
@@ -71,7 +71,7 @@ class TenantController extends Controller
             $tenant->save();
         }
 
-        // Update room status (optional: handle if tenant moved rooms)
+        // Update room status
         $this->updateRoomStatus($tenant->room_id);
 
         return response()->json($tenant);
