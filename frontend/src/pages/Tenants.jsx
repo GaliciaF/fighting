@@ -16,7 +16,7 @@ export default function Tenants() {
   const [tenants, setTenants] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [search, setSearch] = useState("");
-  const [selectedRoomId, setSelectedRoomId] = useState(""); // room filter
+  const [selectedRoomId, setSelectedRoomId] = useState(location.state?.roomId || ""); // set from navigation
   const [loading, setLoading] = useState(true);
 
   const API_URL = "http://localhost:8000/api";
@@ -44,7 +44,6 @@ export default function Tenants() {
     }
   };
 
-  // Refetch tenants and rooms when component mounts or route changes
   useEffect(() => {
     fetchTenants();
     fetchRooms();
@@ -69,12 +68,11 @@ export default function Tenants() {
     navigate("/login");
   };
 
-  // Filter tenants based on search and selected room
   const filteredTenants = tenants.filter(
     (t) =>
       (t.name.toLowerCase().includes(search.toLowerCase()) ||
-      t.email.toLowerCase().includes(search.toLowerCase()) ||
-      t.phone.includes(search)) &&
+        t.email.toLowerCase().includes(search.toLowerCase()) ||
+        t.phone.includes(search)) &&
       (selectedRoomId ? t.room_id === parseInt(selectedRoomId) : true)
   );
 
@@ -136,7 +134,7 @@ export default function Tenants() {
             <option value="">All Rooms</option>
             {rooms.map((room) => (
               <option key={room.id} value={room.id}>
-                Room {room.room_number}
+               Room {room.room_number} 
               </option>
             ))}
           </select>
@@ -170,7 +168,7 @@ export default function Tenants() {
                       <td className="py-2 px-4">{tenant.email}</td>
                       <td className="py-2 px-4">{tenant.phone}</td>
                       <td className="py-2 px-4">
-                        {tenant.room ? `Room ${tenant.room.room_number}` : `Room ${tenant.room_id}`}
+                        {tenant.room ? tenant.room.room_number : tenant.room_id} {tenant.room ? `(${tenant.room.room_type})` : ""}
                       </td>
                       <td className="py-2 px-4 text-center flex justify-center gap-2">
                         <button onClick={() => handleEdit(tenant.id)} className="text-lincoln hover:text-avocado font-medium">

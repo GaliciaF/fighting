@@ -11,7 +11,7 @@ class RoomController extends Controller
     // Get all rooms
     public function index()
     {
-        return Room::all();
+        return Room::with('tenants')->get();
         
     }
 

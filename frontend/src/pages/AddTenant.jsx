@@ -18,11 +18,28 @@ export default function AddTenant() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // 1️⃣ Add the tenant
       const response = await api.post("/tenants", form);
       console.log("Tenant added:", response.data);
+
+      // 2️⃣ Fetch the room to get updated tenants
+      const roomRes = await api.get(`/rooms/${form.room_id}`);
+      const room = roomRes.data;
+
+      // 3️⃣ Determine new room status
+      let newStatus = "Occupied";
+      const currentTenantCount = room.tenants ? room.tenants.length : 0;
+      if (currentTenantCount + 1 >= room.capacity) newStatus = "Full";
+
+      // 4️⃣ Update room status
+      await api.put(`/rooms/${form.room_id}`, {
+        ...room,
+        status: newStatus,
+      });
+
       alert("Tenant added successfully!");
       setForm({ name: "", email: "", phone: "", room_id: "" });
-      navigate("/tenants");
+      navigate("/tenants"); // navigate back to tenants list
     } catch (err) {
       console.error("Error adding tenant:", err.response || err);
       const message = err.response?.data?.message || err.response?.data || err.message;

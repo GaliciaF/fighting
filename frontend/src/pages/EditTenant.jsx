@@ -10,17 +10,20 @@ export default function EditTenant() {
     name: "",
     email: "",
     phone: "",
-    room_id: "",
+    room_id: "", // store room id
   });
 
   const [loading, setLoading] = useState(true);
+  const [rooms, setRooms] = useState([]); // store available rooms
 
-  // Fetch tenant data
   useEffect(() => {
-    const fetchTenant = async () => {
+    const fetchData = async () => {
       try {
-        const response = await api.get(`/tenants/${id}`);
-        const tenant = response.data;
+        const roomsRes = await api.get("/rooms");
+        setRooms(roomsRes.data);
+
+        const tenantRes = await api.get(`/tenants/${id}`);
+        const tenant = tenantRes.data;
 
         setForm({
           name: tenant.name || "",
@@ -31,13 +34,13 @@ export default function EditTenant() {
 
         setLoading(false);
       } catch (err) {
-        console.error("Error loading tenant:", err.response || err);
+        console.error("Error loading tenant or rooms:", err);
         alert("Failed to load tenant data.");
         navigate("/tenants");
       }
     };
 
-    fetchTenant();
+    fetchData();
   }, [id, navigate]);
 
   const handleChange = (e) => {
@@ -47,15 +50,34 @@ export default function EditTenant() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      const payload = {
-        name: form.name,
-        email: form.email,
-        phone: form.phone,
-        room_id: Number(form.room_id),// matches backend
-      };
+    if (!form.room_id) {
+      alert("Please select a room!");
+      return;
+    }
 
-      await api.put(`/tenants/${id}`, payload);
+    try {
+      // Fetch tenant's old room
+      const tenantRes = await api.get(`/tenants/${id}`);
+      const oldRoomId = tenantRes.data.room_id;
+
+      // Update tenant
+      await api.put(`/tenants/${id}`, form);
+
+      // --- Update old room status ---
+      if (oldRoomId) {
+        const oldRoomRes = await api.get(`/rooms/${oldRoomId}`);
+        const oldRoom = oldRoomRes.data;
+        let oldStatus = oldRoom.tenants.length === 0 ? "Available" : "Occupied";
+        await api.put(`/rooms/${oldRoomId}`, { ...oldRoom, status: oldStatus });
+      }
+
+      // --- Update new room status ---
+      const newRoomRes = await api.get(`/rooms/${form.room_id}`);
+      const newRoom = newRoomRes.data;
+      let newStatus = "Occupied";
+      if (newRoom.tenants.length >= newRoom.capacity) newStatus = "Full";
+      await api.put(`/rooms/${form.room_id}`, { ...newRoom, status: newStatus });
+
       alert("Tenant updated successfully!");
       navigate("/tenants", { replace: true });
     } catch (err) {
@@ -69,8 +91,8 @@ export default function EditTenant() {
 
   return (
     <div className="p-6 flex flex-col items-center">
-      <div className="bg-lincoln20 p-6 rounded-2xl shadow-card w-full max-w-lg">
-        <h2 className="text-xl font-semibold text-lincoln mb-4">Edit Tenant</h2>
+      <div className="bg-lincoln20 p-6 rounded-2xl shadow-card w-full max-w-lg text-black">
+        <h2 className="text-xl font-semibold mb-4">Edit Tenant</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
@@ -79,7 +101,7 @@ export default function EditTenant() {
             placeholder="Tenant Name"
             value={form.name}
             onChange={handleChange}
-            className="w-full p-3 border border-lincoln30 rounded-xl"
+            className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
             required
           />
 
@@ -89,7 +111,7 @@ export default function EditTenant() {
             placeholder="Email"
             value={form.email}
             onChange={handleChange}
-            className="w-full p-3 border border-lincoln30 rounded-xl"
+            className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
             required
           />
 
@@ -99,25 +121,38 @@ export default function EditTenant() {
             placeholder="Phone Number"
             value={form.phone}
             onChange={handleChange}
-            className="w-full p-3 border border-lincoln30 rounded-xl"
+            className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
             required
           />
 
-          <input
-            type="number"
+          {/* Room selection dropdown */}
+          <select
             name="room_id"
-            placeholder="Room ID"
             value={form.room_id}
             onChange={handleChange}
-            className="w-full p-3 border border-lincoln30 rounded-xl"
+            className="w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
             required
-          />
+          >
+            <option value="">Select Room</option>
+            {rooms.map((room) => (
+              <option key={room.id} value={room.id}>
+                Room {room.room_number} ({room.room_type}, {room.tenants?.length || 0}/{room.capacity || 0} - {room.status})
+              </option>
+            ))}
+          </select>
 
           <div className="flex justify-between mt-4">
-            <button type="button" onClick={() => navigate("/tenants")} className="px-4 py-2 bg-smoky20 text-lincoln rounded-xl">
+            <button
+              type="button"
+              onClick={() => navigate("/tenants")}
+              className="px-4 py-2 bg-smoky20 rounded-xl hover:bg-gray-200 transition-all"
+            >
               Cancel
             </button>
-            <button type="submit" className="px-4 py-2 bg-lincoln text-white rounded-xl">
+            <button
+              type="submit"
+              className="px-4 py-2 bg-lincoln text-white rounded-xl hover:bg-avocado transition-all"
+            >
               Update
             </button>
           </div>

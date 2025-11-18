@@ -16,7 +16,7 @@ return new class extends Migration
     $table->string('room_number');
     $table->enum('room_type', ['Bedspacer', 'Private',]);
     $table->decimal('rate', 10, 2);
-    $table->enum('status', ['Available', 'Occupied'])->default('Available');
+    $table->enum('status', ['Available', 'Occupied', 'Full'])->default('Available');
     $table->timestamps();
     $table ->integer('capacity')->default(6);
 });

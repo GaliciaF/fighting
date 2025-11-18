@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, NavLink } from "react-router-dom";
+import { useNavigate, NavLink, useLocation } from "react-router-dom";
 import { Home, BedDouble, Users, CreditCard, LogOut, Trash2, Edit2 } from "lucide-react";
 import api from "../api/axios";
 
@@ -12,11 +12,11 @@ const menuItems = [
 
 export default function RoomManagement() {
   const navigate = useNavigate();
+  const location = useLocation(); // to detect navigation from AddTenant/EditTenant
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [rooms, setRooms] = useState([]);
-  const [selectedRoom, setSelectedRoom] = useState(null);
 
   // Fetch rooms from API
   const fetchRooms = async () => {
@@ -32,6 +32,15 @@ export default function RoomManagement() {
     fetchRooms();
   }, []);
 
+  // Auto-refresh when coming back from AddTenant or EditTenant
+  useEffect(() => {
+    if (location.state?.refresh) {
+      fetchRooms();
+      // Reset the flag
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
+
   const handleLogout = () => {
     localStorage.removeItem("role");
     navigate("/login");
@@ -46,17 +55,6 @@ export default function RoomManagement() {
     } catch (err) {
       console.error(err);
       alert("Failed to delete room.");
-    }
-  };
-
-  // Open modal and fetch tenants for this room
-  const openRoomModal = async (room) => {
-    try {
-      const res = await api.get(`/rooms/${room.id}/tenants`); // endpoint should return tenants array
-      setSelectedRoom({ ...room, tenants: res.data });
-    } catch (err) {
-      console.error(err);
-      setSelectedRoom({ ...room, tenants: [] });
     }
   };
 
@@ -126,6 +124,7 @@ export default function RoomManagement() {
             <option value="">All Status</option>
             <option value="Available">Available</option>
             <option value="Occupied">Occupied</option>
+            <option value="Full">Full</option>
           </select>
           <select
             className="border p-3 rounded-2xl focus:ring-2 focus:ring-avocado focus:outline-none"
@@ -140,118 +139,66 @@ export default function RoomManagement() {
 
         {/* ROOM CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {filteredRooms.map((room) => (
-            <div
-              key={room.id}
-              className="bg-lincoln20 border border-lincoln/20 p-6 rounded-2xl shadow-card hover:bg-lincoln30 transition-colors duration-200 cursor-pointer"
-              onClick={() => openRoomModal(room)} // <-- fetch tenants here
-            >
-              <div className="flex justify-between items-center mb-3">
-                <p className="text-lg font-semibold text-smoky">Room {room.room_number}</p>
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    room.status === "Available"
-                      ? "bg-avocado/70 text-background"
-                      : "bg-smoky20 text-smoky"
-                  }`}
-                >
-                  {room.status}
-                </span>
-              </div>
-
-              <p className="text-smoky/80">
-                {room.room_type.charAt(0).toUpperCase() + room.room_type.slice(1)} Room
-              </p>
-
-              <p className="text-smoky/80">
-                Capacity: {room.occupied || 0}/{room.capacity || 0}
-              </p>
-
-              <p className="mt-3 font-semibold text-smoky">
-                {new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" }).format(room.rate)} /month
-              </p>
-
-              <div className="flex justify-end gap-2 mt-4">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/editroom/${room.id}`);
-                  }}
-                  className="px-3 py-1 bg-avocado text-background rounded-xl hover:bg-avocado/80 flex items-center gap-1"
-                >
-                  <Edit2 size={14} /> Edit
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(room.id);
-                  }}
-                  className="px-3 py-1 bg-red-600 text-background rounded-xl hover:bg-red-700 flex items-center gap-1"
-                >
-                  <Trash2 size={14} /> Delete
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* ROOM DETAILS MODAL */}
-        {selectedRoom && (
-          <div className="fixed inset-0 bg-black/80 flex justify-center items-center z-50">
-            <div className="bg-lincoln30 p-6 rounded-3xl w-96 shadow-2xl relative border border-lincoln/40">
-              <button
-                onClick={() => setSelectedRoom(null)}
-                className="absolute top-3 right-3 text-background hover:text-red-500 text-lg font-bold"
+          {filteredRooms.length === 0 ? (
+            <p className="col-span-3 text-center text-smoky/70 py-4">No rooms found.</p>
+          ) : (
+            filteredRooms.map((room) => (
+              <div
+                key={room.id}
+                className="bg-lincoln20 border border-lincoln/20 p-6 rounded-2xl shadow-card hover:bg-lincoln30 transition-colors duration-200 cursor-pointer"
+                onClick={() => navigate("/tenants", { state: { roomId: room.id } })}
               >
-                ✖
-              </button>
-
-              <h2 className="text-xl font-bold mb-4 text-background">
-                Room {selectedRoom.room_number} Details
-              </h2>
-
-              <p className="text-background">
-                <strong>Type:</strong> {selectedRoom.room_type.charAt(0).toUpperCase() + selectedRoom.room_type.slice(1)}
-              </p>
-              <p className="text-background">
-                <strong>Status:</strong> {selectedRoom.status}
-              </p>
-              <p className="text-background">
-                <strong>Capacity:</strong> {selectedRoom.occupied || 0}/{selectedRoom.capacity || 0}
-              </p>
-              <p className="text-background">
-                <strong>Rate:</strong> {new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" }).format(selectedRoom.rate)}
-              </p>
-
-              {selectedRoom.tenants && selectedRoom.tenants.length > 0 ? (
-                <div className="mt-4 bg-lincoln20 p-3 rounded-xl border border-lincoln/40">
-                  <h3 className="font-semibold text-background mb-2">Tenants in this room:</h3>
-                  {selectedRoom.tenants.map((tenant) => (
-                    <div key={tenant.id} className="mb-2">
-                      <p className="text-background">Name: {tenant.name}</p>
-                      <p className="text-background">Email: {tenant.email}</p>
-                      <p className="text-background">Phone: {tenant.phone}</p>
-                    </div>
-                  ))}
+                <div className="flex justify-between items-center mb-3">
+                  <p className="text-lg font-semibold text-smoky">Room {room.room_number}</p>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      room.status === "Available"
+                        ? "bg-avocado/70 text-background"
+                        : room.status === "Occupied"
+                        ? "bg-yellow-500 text-background"
+                        : "bg-red-600 text-background"
+                    }`}
+                  >
+                    {room.status}
+                  </span>
                 </div>
-              ) : (
-                <p className="mt-4 text-background">No tenants assigned to this room.</p>
-              )}
 
-              <div className="flex justify-end mt-4 gap-2">
-                <button
-                  onClick={() => {
-                    setSelectedRoom(null);
-                    navigate(`/editroom/${selectedRoom.id}`);
-                  }}
-                  className="px-4 py-2 bg-avocado text-background rounded-xl hover:bg-avocado/80 flex items-center gap-2"
-                >
-                  <Edit2 size={16} /> Edit Room
-                </button>
+                <p className="text-smoky/80">
+                  {room.room_type.charAt(0).toUpperCase() + room.room_type.slice(1)} Room
+                </p>
+
+                <p className="text-smoky/80">
+                  Capacity: {room.tenants?.length || 0}/{room.capacity || 0}
+                </p>
+
+                <p className="mt-3 font-semibold text-smoky">
+                  {new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" }).format(room.rate)} /month
+                </p>
+
+                <div className="flex justify-end gap-2 mt-4">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/editroom/${room.id}`);
+                    }}
+                    className="px-3 py-1 bg-avocado text-background rounded-xl hover:bg-avocado/80 flex items-center gap-1"
+                  >
+                    <Edit2 size={14} /> Edit
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(room.id);
+                    }}
+                    className="px-3 py-1 bg-red-600 text-background rounded-xl hover:bg-red-700 flex items-center gap-1"
+                  >
+                    <Trash2 size={14} /> Delete
+                  </button>
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+            ))
+          )}
+        </div>
       </main>
     </div>
   );
