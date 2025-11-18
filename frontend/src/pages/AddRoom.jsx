@@ -53,10 +53,10 @@ export default function AddRoom() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Room Number */}
           <input
-            type="text"
-            name="roomNumber"
+            type="number"
+            name="room_number"
             placeholder="Room Number"
-            value={form.roomNumber}
+            value={form.room_number}
             onChange={handleChange}
             className="w-full p-3 border border-lincoln30 rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
             required
@@ -83,7 +83,16 @@ export default function AddRoom() {
             className="w-full p-3 border border-lincoln30 rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
             required
           />
-
+        {/* Capacity */}
+          <input
+            type="number"
+            name="capacity"
+            placeholder="Capacity"
+            value={form.capacity}
+            onChange={handleChange}
+            className="w-full p-3 border border-lincoln30 rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
+            required
+          />
           {/* Status */}
           <select
             name="status"

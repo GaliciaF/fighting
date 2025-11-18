@@ -14,11 +14,14 @@ export default function Tenants() {
   const navigate = useNavigate();
   const location = useLocation();
   const [tenants, setTenants] = useState([]);
+  const [rooms, setRooms] = useState([]);
   const [search, setSearch] = useState("");
+  const [selectedRoomId, setSelectedRoomId] = useState(""); // room filter
   const [loading, setLoading] = useState(true);
 
   const API_URL = "http://localhost:8000/api";
 
+  // Fetch tenants
   const fetchTenants = async () => {
     try {
       setLoading(true);
@@ -31,9 +34,20 @@ export default function Tenants() {
     }
   };
 
-  // Refetch tenants when component mounts or route changes
+  // Fetch rooms for dropdown filter
+  const fetchRooms = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/rooms`);
+      setRooms(response.data);
+    } catch (error) {
+      console.error("Error fetching rooms:", error);
+    }
+  };
+
+  // Refetch tenants and rooms when component mounts or route changes
   useEffect(() => {
     fetchTenants();
+    fetchRooms();
   }, [location]);
 
   const handleDelete = async (id) => {
@@ -55,11 +69,13 @@ export default function Tenants() {
     navigate("/login");
   };
 
+  // Filter tenants based on search and selected room
   const filteredTenants = tenants.filter(
     (t) =>
-      t.name.toLowerCase().includes(search.toLowerCase()) ||
+      (t.name.toLowerCase().includes(search.toLowerCase()) ||
       t.email.toLowerCase().includes(search.toLowerCase()) ||
-      t.phone.includes(search)
+      t.phone.includes(search)) &&
+      (selectedRoomId ? t.room_id === parseInt(selectedRoomId) : true)
   );
 
   return (
@@ -104,13 +120,27 @@ export default function Tenants() {
           </button>
         </div>
 
-        <input
-          type="text"
-          placeholder="Search tenants..."
-          className="border p-3 rounded-2xl w-full md:w-1/3 focus:ring-2 focus:ring-avocado focus:outline-none"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <div className="flex flex-wrap gap-3 items-center mb-6">
+          <input
+            type="text"
+            placeholder="Search tenants..."
+            className="border p-3 rounded-2xl w-full md:w-1/3 focus:ring-2 focus:ring-avocado focus:outline-none"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <select
+            className="border p-3 rounded-2xl focus:ring-2 focus:ring-avocado focus:outline-none"
+            value={selectedRoomId}
+            onChange={(e) => setSelectedRoomId(e.target.value)}
+          >
+            <option value="">All Rooms</option>
+            {rooms.map((room) => (
+              <option key={room.id} value={room.id}>
+                Room {room.room_number}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <div className="bg-lincoln20 border border-lincoln/20 rounded-2xl shadow-card overflow-x-auto">
           {loading ? (
@@ -139,7 +169,9 @@ export default function Tenants() {
                       <td className="py-2 px-4">{tenant.name}</td>
                       <td className="py-2 px-4">{tenant.email}</td>
                       <td className="py-2 px-4">{tenant.phone}</td>
-                      <td className="py-2 px-4">{tenant.room ? tenant.room.name : tenant.room_id}</td>
+                      <td className="py-2 px-4">
+                        {tenant.room ? `Room ${tenant.room.room_number}` : `Room ${tenant.room_id}`}
+                      </td>
                       <td className="py-2 px-4 text-center flex justify-center gap-2">
                         <button onClick={() => handleEdit(tenant.id)} className="text-lincoln hover:text-avocado font-medium">
                           <Edit2 size={16} />

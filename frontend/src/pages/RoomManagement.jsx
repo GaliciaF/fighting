@@ -28,7 +28,6 @@ export default function RoomManagement() {
     }
   };
 
-  // Fetch rooms on mount
   useEffect(() => {
     fetchRooms();
   }, []);
@@ -43,10 +42,21 @@ export default function RoomManagement() {
     try {
       await api.delete(`/rooms/${id}`);
       alert("Room deleted successfully!");
-      fetchRooms(); // Refresh after delete
+      fetchRooms();
     } catch (err) {
       console.error(err);
       alert("Failed to delete room.");
+    }
+  };
+
+  // Open modal and fetch tenants for this room
+  const openRoomModal = async (room) => {
+    try {
+      const res = await api.get(`/rooms/${room.id}/tenants`); // endpoint should return tenants array
+      setSelectedRoom({ ...room, tenants: res.data });
+    } catch (err) {
+      console.error(err);
+      setSelectedRoom({ ...room, tenants: [] });
     }
   };
 
@@ -100,7 +110,7 @@ export default function RoomManagement() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-3 items-center">
+        <div className="flex flex-wrap gap-3 items-center mb-6">
           <input
             type="text"
             placeholder="Search rooms..."
@@ -134,7 +144,7 @@ export default function RoomManagement() {
             <div
               key={room.id}
               className="bg-lincoln20 border border-lincoln/20 p-6 rounded-2xl shadow-card hover:bg-lincoln30 transition-colors duration-200 cursor-pointer"
-              onClick={() => setSelectedRoom(room)}
+              onClick={() => openRoomModal(room)} // <-- fetch tenants here
             >
               <div className="flex justify-between items-center mb-3">
                 <p className="text-lg font-semibold text-smoky">Room {room.room_number}</p>
@@ -161,7 +171,6 @@ export default function RoomManagement() {
                 {new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" }).format(room.rate)} /month
               </p>
 
-              {/* Action Buttons */}
               <div className="flex justify-end gap-2 mt-4">
                 <button
                   onClick={(e) => {
@@ -214,13 +223,19 @@ export default function RoomManagement() {
                 <strong>Rate:</strong> {new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" }).format(selectedRoom.rate)}
               </p>
 
-              {selectedRoom.status === "Occupied" && selectedRoom.tenant && (
+              {selectedRoom.tenants && selectedRoom.tenants.length > 0 ? (
                 <div className="mt-4 bg-lincoln20 p-3 rounded-xl border border-lincoln/40">
-                  <h3 className="font-semibold text-background mb-2">Tenant Info</h3>
-                  <p className="text-background">Name: {selectedRoom.tenant.name}</p>
-                  <p className="text-background">Contact: {selectedRoom.tenant.contact}</p>
-                  <p className="text-background">Email: {selectedRoom.tenant.email}</p>
+                  <h3 className="font-semibold text-background mb-2">Tenants in this room:</h3>
+                  {selectedRoom.tenants.map((tenant) => (
+                    <div key={tenant.id} className="mb-2">
+                      <p className="text-background">Name: {tenant.name}</p>
+                      <p className="text-background">Email: {tenant.email}</p>
+                      <p className="text-background">Phone: {tenant.phone}</p>
+                    </div>
+                  ))}
                 </div>
+              ) : (
+                <p className="mt-4 text-background">No tenants assigned to this room.</p>
               )}
 
               <div className="flex justify-end mt-4 gap-2">

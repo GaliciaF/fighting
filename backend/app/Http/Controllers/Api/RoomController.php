@@ -12,6 +12,7 @@ class RoomController extends Controller
     public function index()
     {
         return Room::all();
+        
     }
 
     // Create room
@@ -19,7 +20,7 @@ class RoomController extends Controller
     {
         // Validate based on React inputs
         $validated = $request->validate([
-            'roomNumber' => 'required|string|max:255',
+            'room_number' => 'required|string|max:255',
             'type'       => 'required|string|max:255',
             'price'      => 'required|numeric|min:0',
             'status'     => 'required|string',
@@ -28,7 +29,7 @@ class RoomController extends Controller
 
         // Convert React fields → database fields
         $room = Room::create([
-            'room_number' => $validated['roomNumaber'],
+            'room_number' => $validated['room_number'],
             'room_type'   => $validated['type'],
             'rate'        => $validated['price'],
             'status'      => $validated['status'],
@@ -47,7 +48,7 @@ class RoomController extends Controller
     public function update(Request $request, Room $room)
     {
         $validated = $request->validate([
-            'roomNumber' => 'sometimes|required|string|max:255',
+            'room_number' => 'sometimes|required|string|max:255',
             'type'       => 'sometimes|required|string|max:255',
             'price'      => 'sometimes|required|numeric|min:0',
             'status'     => 'sometimes|required|string',
@@ -56,7 +57,7 @@ class RoomController extends Controller
 
         // Update only fields that exist in the request
         $room->update([
-            'room_number' => $validated['roomNumber'] ?? $room->room_number,
+            'room_number' => $validated['room_number'] ?? $room->room_number,
             'room_type'   => $validated['type'] ?? $room->room_type,
             'rate'        => $validated['price'] ?? $room->rate,
             'status'      => $validated['status'] ?? $room->status,

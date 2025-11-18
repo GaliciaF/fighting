@@ -39,7 +39,7 @@ public function store(Request $request)
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
-            'room_id' => $request->roomNumber,
+            'room_id' => $request->room_id,
         ]);
 
         // Handle profile picture if uploaded
