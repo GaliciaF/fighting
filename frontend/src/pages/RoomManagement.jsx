@@ -28,6 +28,7 @@ export default function RoomManagement() {
     }
   };
 
+  // Fetch rooms on mount
   useEffect(() => {
     fetchRooms();
   }, []);
@@ -42,24 +43,15 @@ export default function RoomManagement() {
     try {
       await api.delete(`/rooms/${id}`);
       alert("Room deleted successfully!");
-      fetchRooms();
+      fetchRooms(); // Refresh after delete
     } catch (err) {
       console.error(err);
       alert("Failed to delete room.");
     }
   };
 
-  // Update room in state after edit
-  const updateRoomInState = (updatedRoom) => {
-    setRooms((prev) =>
-      prev.map((room) => (room.id === updatedRoom.id ? updatedRoom : room))
-    );
-  };
-
   const filteredRooms = rooms.filter((room) => {
-    const matchesSearch = room.room_number
-      ?.toUpperCase()
-      .includes(search.toUpperCase());
+    const matchesSearch = room.room_number?.toUpperCase().includes(search.toUpperCase());
     const matchesType = filterType ? room.room_type === filterType : true;
     const matchesStatus = filterStatus ? room.status === filterStatus : true;
     return matchesSearch && matchesType && matchesStatus;
@@ -145,9 +137,7 @@ export default function RoomManagement() {
               onClick={() => setSelectedRoom(room)}
             >
               <div className="flex justify-between items-center mb-3">
-                <p className="text-lg font-semibold text-smoky">
-                  Room {room.room_number}
-                </p>
+                <p className="text-lg font-semibold text-smoky">Room {room.room_number}</p>
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-medium ${
                     room.status === "Available"
@@ -163,14 +153,12 @@ export default function RoomManagement() {
                 {room.room_type.charAt(0).toUpperCase() + room.room_type.slice(1)} Room
               </p>
 
-              {/* Capacity visible */}
               <p className="text-smoky/80">
                 Capacity: {room.occupied || 0}/{room.capacity || 0}
               </p>
 
               <p className="mt-3 font-semibold text-smoky">
-                {new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" }).format(room.rate)}{" "}
-                /month
+                {new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" }).format(room.rate)} /month
               </p>
 
               {/* Action Buttons */}
@@ -178,7 +166,7 @@ export default function RoomManagement() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    navigate(`/editroom/${room.id}`, { state: { updateRoomInState } });
+                    navigate(`/editroom/${room.id}`);
                   }}
                   className="px-3 py-1 bg-avocado text-background rounded-xl hover:bg-avocado/80 flex items-center gap-1"
                 >
@@ -239,7 +227,7 @@ export default function RoomManagement() {
                 <button
                   onClick={() => {
                     setSelectedRoom(null);
-                    navigate(`/editroom/${selectedRoom.id}`, { state: { updateRoomInState } });
+                    navigate(`/editroom/${selectedRoom.id}`);
                   }}
                   className="px-4 py-2 bg-avocado text-background rounded-xl hover:bg-avocado/80 flex items-center gap-2"
                 >

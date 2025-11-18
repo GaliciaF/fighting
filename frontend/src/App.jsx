@@ -60,7 +60,14 @@ export default function App() {
           </ProtectedRoute>
         }
       />
-      
+      <Route
+  path="/editroom/:id"
+  element={
+    <ProtectedRoute allowedRoles={["admin"]}>
+      <EditRoom />
+    </ProtectedRoute>
+  }
+/>
       <Route
         path="/tenants"
         element={
@@ -188,7 +195,6 @@ export default function App() {
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/login" replace />} />
-      <Route path="/editroom/:id" element={<EditRoom />} />
 
     </Routes>
   );

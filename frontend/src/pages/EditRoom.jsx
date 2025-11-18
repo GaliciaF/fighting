@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import api from "../api/axios";
 
 export default function EditRoom() {
-  const { id } = useParams(); // get room id from URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
@@ -14,7 +14,6 @@ export default function EditRoom() {
     capacity: "",
   });
 
-  // Fetch room data on mount
   useEffect(() => {
     const fetchRoom = async () => {
       try {
@@ -27,7 +26,7 @@ export default function EditRoom() {
           capacity: res.data.capacity || "",
         });
       } catch (err) {
-        console.error("Error fetching room:", err);
+        console.error(err);
         alert("Failed to fetch room data.");
         navigate("/roommanagement");
       }
@@ -35,31 +34,35 @@ export default function EditRoom() {
     fetchRoom();
   }, [id, navigate]);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.put(`/rooms/${id}`, form);
+      await api.put(`/rooms/${id}`, {
+        roomNumber: form.roomNumber,
+        type: form.roomType,
+        price: form.rate,
+        status: form.status,
+        capacity: form.capacity,
+      });
+
       alert("Room updated successfully!");
-      navigate("/roommanagement");
+      navigate("/roommanagement"); // Go back and refresh
     } catch (err) {
       console.error(err);
       alert("Failed to update room.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
     <div className="p-6 flex flex-col items-center">
       <div className="bg-lincoln20 p-6 rounded-2xl shadow-card w-full max-w-lg">
         <h2 className="text-xl font-semibold text-lincoln mb-4">Edit Room</h2>
-
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Room Number */}
           <input
             type="text"
             name="roomNumber"
@@ -69,8 +72,6 @@ export default function EditRoom() {
             className="w-full p-3 border border-lincoln30 rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
             required
           />
-
-          {/* Room Type */}
           <select
             name="roomType"
             value={form.roomType}
@@ -78,14 +79,10 @@ export default function EditRoom() {
             className="w-full p-3 border border-lincoln30 rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
             required
           >
-            <option value="" disabled>
-              Select Room Type
-            </option>
+            <option value="" disabled>Select Room Type</option>
             <option value="Bedspacer">Bedspacer</option>
             <option value="Private">Private</option>
           </select>
-
-          {/* Rate */}
           <input
             type="number"
             name="rate"
@@ -95,8 +92,6 @@ export default function EditRoom() {
             className="w-full p-3 border border-lincoln30 rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
             required
           />
-
-          {/* Capacity */}
           <input
             type="number"
             name="capacity"
@@ -105,8 +100,6 @@ export default function EditRoom() {
             onChange={handleChange}
             className="w-full p-3 border border-lincoln30 rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
           />
-
-          {/* Status */}
           <select
             name="status"
             value={form.status}
@@ -117,7 +110,6 @@ export default function EditRoom() {
             <option value="Occupied">Occupied</option>
           </select>
 
-          {/* Buttons */}
           <div className="flex justify-between mt-4">
             <button
               type="button"
@@ -126,7 +118,6 @@ export default function EditRoom() {
             >
               Cancel
             </button>
-
             <button
               type="submit"
               disabled={loading}

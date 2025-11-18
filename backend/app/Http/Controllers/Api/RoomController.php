@@ -28,12 +28,11 @@ class RoomController extends Controller
 
         // Convert React fields → database fields
         $room = Room::create([
-            'room_number' => $validated['roomNumber'],
+            'room_number' => $validated['roomNumaber'],
             'room_type'   => $validated['type'],
             'rate'        => $validated['price'],
             'status'      => $validated['status'],
-            'capacity'    => 6,
-        ]);
+            'capacity'    => $validated['capacity'] ?? 6,        ]);
 
         return response()->json($room, 201);
     }
@@ -52,6 +51,7 @@ class RoomController extends Controller
             'type'       => 'sometimes|required|string|max:255',
             'price'      => 'sometimes|required|numeric|min:0',
             'status'     => 'sometimes|required|string',
+            'capacity'   => 'sometimes|integer|min:1',
         ]);
 
         // Update only fields that exist in the request
@@ -60,6 +60,7 @@ class RoomController extends Controller
             'room_type'   => $validated['type'] ?? $room->room_type,
             'rate'        => $validated['price'] ?? $room->rate,
             'status'      => $validated['status'] ?? $room->status,
+            'capacity' => $validated['capacity'] ?? $room->capacity,
         ]);
 
         return response()->json($room, 200);
