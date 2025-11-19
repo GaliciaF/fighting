@@ -6,9 +6,10 @@ export default function AddRoom() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    roomNumber: "",
-    type: "Bedspacer",
-    price: "",
+    room_number: "",
+    room_type: "Bedspacer",
+    rate: "",
+    capacity: "",
     status: "Available",
   });
 
@@ -28,18 +29,27 @@ export default function AddRoom() {
 
       alert("Room added successfully!");
 
-      // reset
+      // Reset form
       setForm({
-        roomNumber: "",
-        type: "Bedspacer",
-        price: "",
+        room_number: "",
+        room_type: "Bedspacer",
+        rate: "",
+        capacity: "",
         status: "Available",
       });
 
       navigate("/roommanagement");
     } catch (error) {
-      console.error("Error saving room:", error.response?.data || error);
-      alert("Failed to save room.");
+      if (error.response) {
+        console.error("Status:", error.response.status);
+        console.error("Data:", error.response.data);
+        alert(
+          `Failed to save room: ${error.response.data.message || "Unknown error"}`
+        );
+      } else {
+        console.error("Error:", error);
+        alert("Failed to save room: Network error");
+      }
     } finally {
       setLoading(false);
     }
@@ -64,26 +74,27 @@ export default function AddRoom() {
 
           {/* Room Type */}
           <select
-            name="type"
-            value={form.type}
+            name="room_type"
+            value={form.room_type}
             onChange={handleChange}
             className="w-full p-3 border border-lincoln30 rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
           >
-            <option value="bedspacer">Bedspacer</option>
-            <option value="private">Private</option>
+            <option value="Bedspacer">Bedspacer</option>
+            <option value="Private">Private</option>
           </select>
 
           {/* Price */}
           <input
             type="number"
-            name="price"
+            name="rate"
             placeholder="Monthly Rate (₱)"
-            value={form.price}
+            value={form.rate}
             onChange={handleChange}
             className="w-full p-3 border border-lincoln30 rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
             required
           />
-        {/* Capacity */}
+
+          {/* Capacity */}
           <input
             type="number"
             name="capacity"
@@ -93,6 +104,7 @@ export default function AddRoom() {
             className="w-full p-3 border border-lincoln30 rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
             required
           />
+
           {/* Status */}
           <select
             name="status"
@@ -102,6 +114,7 @@ export default function AddRoom() {
           >
             <option value="Available">Available</option>
             <option value="Occupied">Occupied</option>
+            <option value="Full">Full</option>
           </select>
 
           <div className="flex justify-between mt-4">

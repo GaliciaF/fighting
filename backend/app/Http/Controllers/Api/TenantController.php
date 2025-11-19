@@ -17,26 +17,34 @@ class TenantController extends Controller
 
     public function store(Request $request)
     {
-        // Fetch the room first
-        $room = Room::with('tenants')->find($request->room_id);
+        // Validate input
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:tenants,email',
+            'phone' => 'required|string|max:20',
+            'room_id' => 'required|exists:rooms,id',
+        ]);
+
+        // Fetch the room with tenants
+        $room = Room::with('tenants')->find($validated['room_id']);
 
         if (!$room) {
             return response()->json(['message' => 'Room not found'], 404);
         }
 
-        $tenantCount = $room->tenants->count();
-
         // Prevent adding tenant if room is full
-        if ($tenantCount >= $room->capacity) {
-            return response()->json(['message' => 'Cannot add tenant. Room is already full.'], 400);
+        if ($room->tenants->count() >= $room->capacity) {
+            return response()->json([
+                'message' => 'Cannot add tenant. Room is already full.'
+            ], 400);
         }
 
         // Create tenant
         $tenant = Tenant::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'room_id' => $request->room_id,
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'room_id' => $validated['room_id'],
         ]);
 
         // Update room status after adding tenant
@@ -52,13 +60,32 @@ class TenantController extends Controller
 
     public function update(Request $request, Tenant $tenant)
     {
-        // Update basic fields
-        $tenant->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'room_id' => $request->room_id,
+        // Validate input
+        $validated = $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|email|unique:tenants,email,' . $tenant->id,
+            'phone' => 'sometimes|required|string|max:20',
+            'room_id' => 'sometimes|required|exists:rooms,id',
         ]);
+
+        // Fetch new room if changing
+        if (isset($validated['room_id'])) {
+            $room = Room::with('tenants')->find($validated['room_id']);
+
+            if (!$room) {
+                return response()->json(['message' => 'Room not found'], 404);
+            }
+
+            // Check capacity if moving tenant to a new room
+            if ($room->tenants->count() >= $room->capacity && $room->id != $tenant->room_id) {
+                return response()->json([
+                    'message' => 'Cannot move tenant. Target room is full.'
+                ], 400);
+            }
+        }
+
+        // Update tenant fields
+        $tenant->update($validated);
 
         // Handle profile picture if uploaded
         if ($request->hasFile('profilePic')) {
@@ -71,8 +98,11 @@ class TenantController extends Controller
             $tenant->save();
         }
 
-        // Update room status
+        // Update old and new room status
         $this->updateRoomStatus($tenant->room_id);
+        if (isset($room) && $room->id != $tenant->room_id) {
+            $this->updateRoomStatus($room->id);
+        }
 
         return response()->json($tenant);
     }

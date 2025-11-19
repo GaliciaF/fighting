@@ -22,11 +22,13 @@ Route::post('/login', [AuthController::class, 'login']);
 
 // Rooms (everything handled automatically)
 Route::apiResource('/rooms', RoomController::class);
-
+Route::get('/rooms', [RoomController::class, 'index']);
+Route::post('/rooms', [RoomController::class, 'store']);
 // Tenants
 Route::apiResource('/tenants', TenantController::class);
 Route::get('/tenant/email/{email}', [TenantController::class, 'getByEmail']);
-
+Route::get('/tenants/{tenant}', [TenantController::class, 'show']);
+Route::post('/tenants/{tenant}', [TenantController::class, 'update']);
 // Payments
 Route::apiResource('/payments', PaymentController::class);
 

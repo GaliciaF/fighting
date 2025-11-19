@@ -17,31 +17,22 @@ class RoomController extends Controller
     // Create room
     public function store(Request $request)
     {
-          // Get the room first
-    $room = Room::with('tenants')->find($request->room_id);
-
-    if (!$room) {
-        return response()->json(['message' => 'Room not found'], 404);
-    }
-
-    // Check if room is already full
-    if ($room->tenants->count() >= $room->capacity) {
-        return response()->json(['message' => 'Cannot add tenant: room is full'], 400);
-    }
+        // Validate incoming request
         $validated = $request->validate([
             'room_number' => 'required|string|max:255',
-            'type'       => 'required|string|max:255',
-            'price'      => 'required|numeric|min:0',
-            'status'     => 'required|string',
-            'capacity'   => 'sometimes|integer|min:1',
+            'room_type'        => 'required|string|max:255',
+            'rate'       => 'required|numeric|min:0',
+            'status'      => 'required|string',
+            'capacity'    => 'sometimes|integer|min:1',
         ]);
 
+        // Create new room
         $room = Room::create([
             'room_number' => $validated['room_number'],
-            'room_type'   => $validated['type'],
-            'rate'        => $validated['price'],
+            'room_type'   => $validated['room_type'],
+            'rate'        => $validated['rate'],
             'status'      => $validated['status'],
-            'capacity'    => $validated['capacity'],
+            'capacity'    => $validated['capacity'] ?? 1,
         ]);
 
         return response()->json($room, 201);
@@ -58,17 +49,17 @@ class RoomController extends Controller
     {
         $validated = $request->validate([
             'room_number' => 'sometimes|required|string|max:255',
-            'type'       => 'sometimes|required|string|max:255',
-            'price'      => 'sometimes|required|numeric|min:0',
-            'status'     => 'sometimes|required|string',
-            'capacity'   => 'sometimes|integer|min:1',
+            'room_type'        => 'sometimes|required|string|max:255',
+            'rate'       => 'sometimes|required|numeric|min:0',
+            'status'      => 'sometimes|required|string',
+            'capacity'    => 'sometimes|integer|min:1',
         ]);
 
         // Update only fields that exist in the request
         $room->update([
             'room_number' => $validated['room_number'] ?? $room->room_number,
-            'room_type'   => $validated['type'] ?? $room->room_type,
-            'rate'        => $validated['price'] ?? $room->rate,
+            'room_type'   => $validated['room_type'] ?? $room->room_type,
+            'rate'        => $validated['rate'] ?? $room->rate,
             'capacity'    => $validated['capacity'] ?? $room->capacity,
         ]);
 
