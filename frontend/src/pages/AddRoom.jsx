@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 
@@ -14,6 +14,20 @@ export default function AddRoom() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [existingRooms, setExistingRooms] = useState([]);
+
+  // Fetch existing rooms on mount
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const res = await api.get("/rooms");
+        setExistingRooms(res.data);
+      } catch (err) {
+        console.error("Failed to fetch rooms:", err);
+      }
+    };
+    fetchRooms();
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -21,12 +35,21 @@ export default function AddRoom() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Check for duplicate room number
+    const duplicate = existingRooms.some(
+      (r) => r.room_number.toString() === form.room_number.toString()
+    );
+    if (duplicate) {
+      alert("Room number already exists! Please enter a different number.");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const res = await api.post("/rooms", form);
       console.log("Room Saved:", res.data);
-
       alert("Room added successfully!");
 
       // Reset form

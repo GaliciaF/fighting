@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react"; 
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../api/axios";
 
@@ -6,21 +6,26 @@ export default function EditRoom() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [allRooms, setAllRooms] = useState([]); // store all rooms to check duplicates
   const [form, setForm] = useState({
-    roomNumber: "",
-    roomType: "",
+    room_number: "",
+    room_type: "",
     rate: "",
     status: "Available",
     capacity: "",
   });
 
+  // Fetch room and all rooms for duplicate check
   useEffect(() => {
     const fetchRoom = async () => {
       try {
+        const roomsRes = await api.get("/rooms");
+        setAllRooms(roomsRes.data);
+
         const res = await api.get(`/rooms/${id}`);
         setForm({
-          roomNumber: res.data.room_number,
-          roomType: res.data.room_type,
+          room_number: res.data.room_number,
+          room_type: res.data.room_type,
           rate: res.data.rate,
           status: res.data.status,
           capacity: res.data.capacity || "",
@@ -28,8 +33,7 @@ export default function EditRoom() {
       } catch (err) {
         console.error(err);
         alert("Failed to fetch room data.");
-// After successful edit
-navigate("/roommanagement", { state: { refresh: true } });
+        navigate("/roommanagement");
       }
     };
     fetchRoom();
@@ -40,17 +44,28 @@ navigate("/roommanagement", { state: { refresh: true } });
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    // Check for duplicate room number (excluding current room)
+    const duplicate = allRooms.find(
+      (r) => r.room_number === form.room_number && r.id !== parseInt(id)
+    );
+    if (duplicate) {
+      alert(`Room number ${form.room_number} already exists!`);
+      setLoading(false);
+      return;
+    }
+
     try {
       await api.put(`/rooms/${id}`, {
         room_number: form.room_number,
-        type: form.roomType,
-        price: form.rate,
+        room_type: form.room_type,
+        rate: form.rate,
         status: form.status,
         capacity: form.capacity,
       });
 
       alert("Room updated successfully!");
-      navigate("/roommanagement"); // Go back and refresh
+      navigate("/roommanagement", { state: { refresh: true } });
     } catch (err) {
       console.error(err);
       alert("Failed to update room.");
@@ -74,8 +89,8 @@ navigate("/roommanagement", { state: { refresh: true } });
             required
           />
           <select
-            name="roomType"
-            value={form.roomType}
+            name="room_type"
+            value={form.room_type}
             onChange={handleChange}
             className="w-full p-3 border border-lincoln30 rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
             required
