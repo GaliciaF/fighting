@@ -16,7 +16,8 @@ export default function Tenants() {
   const [tenants, setTenants] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [search, setSearch] = useState("");
-  const [selectedRoomId, setSelectedRoomId] = useState(location.state?.roomId || ""); // set from navigation
+  const [selectedRoomId, setSelectedRoomId] = useState(location.state?.roomId || "");
+  const [selectedRoomType, setSelectedRoomType] = useState("");
   const [loading, setLoading] = useState(true);
 
   const API_URL = "http://localhost:8000/api";
@@ -68,12 +69,14 @@ export default function Tenants() {
     navigate("/login");
   };
 
+  // Filter tenants by search, room, and room type
   const filteredTenants = tenants.filter(
     (t) =>
       (t.name.toLowerCase().includes(search.toLowerCase()) ||
         t.email.toLowerCase().includes(search.toLowerCase()) ||
         t.phone.includes(search)) &&
-      (selectedRoomId ? t.room_id === parseInt(selectedRoomId) : true)
+      (selectedRoomId ? t.room_id === parseInt(selectedRoomId) : true) &&
+      (selectedRoomType ? t.room?.room_type === selectedRoomType : true)
   );
 
   return (
@@ -118,6 +121,7 @@ export default function Tenants() {
           </button>
         </div>
 
+        {/* Filters */}
         <div className="flex flex-wrap gap-3 items-center mb-6">
           <input
             type="text"
@@ -134,9 +138,20 @@ export default function Tenants() {
             <option value="">All Rooms</option>
             {rooms.map((room) => (
               <option key={room.id} value={room.id}>
-               Room {room.room_number} 
+                Room {room.room_number}
               </option>
             ))}
+          </select>
+
+          {/* Room Type Filter */}
+          <select
+            className="border p-3 rounded-2xl focus:ring-2 focus:ring-avocado focus:outline-none"
+            value={selectedRoomType}
+            onChange={(e) => setSelectedRoomType(e.target.value)}
+          >
+            <option value="">All Types</option>
+            <option value="Private">Private</option>
+            <option value="Bedspacer">Bedspacer</option>
           </select>
         </div>
 
@@ -163,18 +178,28 @@ export default function Tenants() {
                   </tr>
                 ) : (
                   filteredTenants.map((tenant) => (
-                    <tr key={tenant.id} className="border-t hover:bg-lincoln30 transition-colors duration-200">
+                    <tr
+                      key={tenant.id}
+                      className="border-t hover:bg-lincoln30 transition-colors duration-200"
+                    >
                       <td className="py-2 px-4">{tenant.name}</td>
                       <td className="py-2 px-4">{tenant.email}</td>
                       <td className="py-2 px-4">{tenant.phone}</td>
                       <td className="py-2 px-4">
-                        {tenant.room ? tenant.room.room_number : tenant.room_id} {tenant.room ? `(${tenant.room.room_type})` : ""}
+                        {tenant.room ? tenant.room.room_number : tenant.room_id}{" "}
+                        
                       </td>
                       <td className="py-2 px-4 text-center flex justify-center gap-2">
-                        <button onClick={() => handleEdit(tenant.id)} className="text-lincoln hover:text-avocado font-medium">
+                        <button
+                          onClick={() => handleEdit(tenant.id)}
+                          className="text-lincoln hover:text-avocado font-medium"
+                        >
                           <Edit2 size={16} />
                         </button>
-                        <button onClick={() => handleDelete(tenant.id)} className="text-red-500 hover:text-red-700 font-medium">
+                        <button
+                          onClick={() => handleDelete(tenant.id)}
+                          className="text-red-500 hover:text-red-700 font-medium"
+                        >
                           <Trash2 size={16} />
                         </button>
                       </td>

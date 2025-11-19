@@ -67,7 +67,7 @@ export default function EditTenant() {
       if (oldRoomId) {
         const oldRoomRes = await api.get(`/rooms/${oldRoomId}`);
         const oldRoom = oldRoomRes.data;
-        let oldStatus = oldRoom.tenants.length === 0 ? "Available" : "Occupied";
+        let oldStatus = oldRoom.tenants?.length === 0 ? "Available" : "Occupied";
         await api.put(`/rooms/${oldRoomId}`, { ...oldRoom, status: oldStatus });
       }
 
@@ -75,7 +75,7 @@ export default function EditTenant() {
       const newRoomRes = await api.get(`/rooms/${form.room_id}`);
       const newRoom = newRoomRes.data;
       let newStatus = "Occupied";
-      if (newRoom.tenants.length >= newRoom.capacity) newStatus = "Full";
+      if (newRoom.tenants?.length >= newRoom.capacity) newStatus = "Full";
       await api.put(`/rooms/${form.room_id}`, { ...newRoom, status: newStatus });
 
       alert("Tenant updated successfully!");

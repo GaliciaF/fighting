@@ -85,4 +85,5 @@ class RoomController extends Controller
         $room->delete();
         return response()->json(null, 204);
     }
+    
 }
