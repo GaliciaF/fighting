@@ -28,7 +28,8 @@ export default function EditRoom() {
       } catch (err) {
         console.error(err);
         alert("Failed to fetch room data.");
-        navigate("/roommanagement");
+// After successful edit
+navigate("/roommanagement", { state: { refresh: true } });
       }
     };
     fetchRoom();
@@ -41,7 +42,7 @@ export default function EditRoom() {
     setLoading(true);
     try {
       await api.put(`/rooms/${id}`, {
-        roomNumber: form.roomNumber,
+        room_number: form.room_number,
         type: form.roomType,
         price: form.rate,
         status: form.status,
@@ -65,9 +66,9 @@ export default function EditRoom() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
-            name="roomNumber"
+            name="room_number"
             placeholder="Room Number"
-            value={form.roomNumber}
+            value={form.room_number}
             onChange={handleChange}
             className="w-full p-3 border border-lincoln30 rounded-xl focus:outline-none focus:ring-2 focus:ring-avocado"
             required

@@ -18,7 +18,7 @@ return new class extends Migration
     $table->decimal('rate', 10, 2);
     $table->enum('status', ['Available', 'Occupied', 'Full'])->default('Available');
     $table->timestamps();
-    $table ->integer('capacity')->default(6);
+    $table ->integer('capacity');
 });
 
     }

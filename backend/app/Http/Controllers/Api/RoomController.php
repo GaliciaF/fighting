@@ -12,13 +12,22 @@ class RoomController extends Controller
     public function index()
     {
         return Room::with('tenants')->get();
-        
     }
 
     // Create room
     public function store(Request $request)
     {
-        // Validate based on React inputs
+          // Get the room first
+    $room = Room::with('tenants')->find($request->room_id);
+
+    if (!$room) {
+        return response()->json(['message' => 'Room not found'], 404);
+    }
+
+    // Check if room is already full
+    if ($room->tenants->count() >= $room->capacity) {
+        return response()->json(['message' => 'Cannot add tenant: room is full'], 400);
+    }
         $validated = $request->validate([
             'room_number' => 'required|string|max:255',
             'type'       => 'required|string|max:255',
@@ -27,13 +36,13 @@ class RoomController extends Controller
             'capacity'   => 'sometimes|integer|min:1',
         ]);
 
-        // Convert React fields → database fields
         $room = Room::create([
             'room_number' => $validated['room_number'],
             'room_type'   => $validated['type'],
             'rate'        => $validated['price'],
             'status'      => $validated['status'],
-            'capacity'    => $validated['capacity'] ?? 6,        ]);
+            'capacity'    => $validated['capacity'],
+        ]);
 
         return response()->json($room, 201);
     }
@@ -60,9 +69,21 @@ class RoomController extends Controller
             'room_number' => $validated['room_number'] ?? $room->room_number,
             'room_type'   => $validated['type'] ?? $room->room_type,
             'rate'        => $validated['price'] ?? $room->rate,
-            'status'      => $validated['status'] ?? $room->status,
-            'capacity' => $validated['capacity'] ?? $room->capacity,
+            'capacity'    => $validated['capacity'] ?? $room->capacity,
         ]);
+
+        // Recalculate status based on current tenants and new capacity
+        $tenantCount = $room->tenants()->count();
+
+        if ($tenantCount >= $room->capacity) {
+            $room->status = 'Full';
+        } elseif ($tenantCount > 0) {
+            $room->status = 'Occupied';
+        } else {
+            $room->status = 'Available';
+        }
+
+        $room->save();
 
         return response()->json($room, 200);
     }
