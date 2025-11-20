@@ -14,6 +14,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/announcements/{id}', [AnnouncementController::class, 'show']);
     Route::put('/announcements/{id}', [AnnouncementController::class, 'update']);
     Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy']);
+    Route::get('/payments', [PaymentController::class, 'index']);
+
 });
 
 // Auth

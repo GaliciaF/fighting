@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../api/axios";
 
-export default function AddPayment() {
+export default function EditPayment() {
   const navigate = useNavigate();
-  const { id } = useParams(); // For edit mode
+  const { id } = useParams(); // Get payment ID from URL
   const [tenants, setTenants] = useState([]);
   const [form, setForm] = useState({
     tenant_id: "",
@@ -12,9 +12,9 @@ export default function AddPayment() {
     payment_date: "",
     status: "Paid",
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch tenants
+  // Fetch tenants for dropdown
   useEffect(() => {
     const fetchTenants = async () => {
       try {
@@ -27,11 +27,10 @@ export default function AddPayment() {
     fetchTenants();
   }, []);
 
-  // If editing, fetch existing payment
+  // Fetch payment data to edit
   useEffect(() => {
     if (!id) return;
     const fetchPayment = async () => {
-      setLoading(true);
       try {
         const res = await api.get(`/payments/${id}`);
         setForm({
@@ -56,19 +55,12 @@ export default function AddPayment() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (id) {
-        // Edit mode
-        await api.put(`/payments/${id}`, form);
-        alert("Payment updated!");
-      } else {
-        // Add mode
-        await api.post("/payments", form);
-        alert("Payment recorded!");
-      }
+      await api.put(`/payments/${id}`, form); // Update payment
+      alert("Payment updated!");
       navigate("/payments");
     } catch (err) {
       console.error(err);
-      alert("Failed to save payment.");
+      alert("Failed to update payment.");
     }
   };
 
@@ -77,9 +69,7 @@ export default function AddPayment() {
   return (
     <div className="p-6 flex flex-col items-center">
       <div className="bg-lincoln20 p-6 rounded-2xl shadow-card w-full max-w-lg">
-        <h2 className="text-xl font-semibold text-lincoln mb-4">
-          {id ? "Edit Payment" : "Add Payment"}
-        </h2>
+        <h2 className="text-xl font-semibold text-lincoln mb-4">Edit Payment</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Tenant Dropdown */}
@@ -143,7 +133,7 @@ export default function AddPayment() {
               type="submit"
               className="px-4 py-2 bg-lincoln text-white rounded-xl hover:bg-avocado transition-all"
             >
-              {id ? "Update" : "Save"}
+              Update
             </button>
           </div>
         </form>

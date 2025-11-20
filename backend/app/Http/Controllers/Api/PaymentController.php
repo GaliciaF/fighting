@@ -10,7 +10,22 @@ class PaymentController extends Controller
 {
     public function index()
     {
-        return Payment::with('tenant.room')->get();
+        // Fetch payments with tenant relationship
+        $payments = Payment::with('tenant:id,name')
+            ->orderBy('id', 'desc')
+            ->get()
+            ->map(function ($p) {
+                return [
+                    'id' => $p->id,
+                    'tenant_id' => $p->tenant_id, // Added tenant_id
+                    'tenant_name' => $p->tenant->name ?? 'Unknown Tenant',
+                    'amount' => $p->amount,
+                    'date' => $p->payment_date, // frontend expects "date"
+                    'status' => $p->status,
+                ];
+            });
+
+        return response()->json($payments);
     }
 
     public function store(Request $request)

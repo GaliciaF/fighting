@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 
 // Admin pages
+import EditPayment from "./pages/EditPayment";
 import AdminDashboard from "./pages/AdminDashboard";
 import RoomManagement from "./pages/RoomManagement";
 import Tenants from "./pages/Tenants";
@@ -119,6 +120,14 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+  path="/editpayment/:id"
+  element={
+    <ProtectedRoute allowedRoles={["admin"]}>
+      <EditPayment />
+    </ProtectedRoute>
+  }
+/>
       <Route
         path="/announcements"
         element={
